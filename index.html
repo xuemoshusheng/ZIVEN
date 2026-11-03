@@ -1,0 +1,2417 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟世界里的向日葵 - 沉浸式数字文学阅读</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        sepia: {
+                            50: '#fbf0d9',
+                            100: '#f5e6c4',
+                            800: '#5c4b37',
+                            900: '#3d3123'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        serif: ['Noto Serif SC', 'Source Han Serif SC', 'Georgia', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Literary Atmosphere -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom typography and smooth transitions */
+        body {
+            font-family: 'Noto Serif SC', serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .sans-font {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.8);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-full bg-[#fbfbf9] text-zinc-800 dark:bg-[#121214] dark:text-zinc-200 transition-colors duration-300 flex flex-col overflow-hidden" id="app-body">
+
+    <!-- Top Reading Progress Bar -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-transparent z-50">
+        <div id="progress-bar" class="h-full bg-amber-600 dark:bg-amber-500 w-0 transition-all duration-150"></div>
+    </div>
+
+    <!-- Cover Page View -->
+    <div id="cover-view" class="fixed inset-0 z-40 bg-[#f8f8f6] dark:bg-[#0e0e10] flex flex-col justify-between p-6 sm:p-12 lg:p-16 overflow-y-auto transition-opacity duration-500">
+        <div class="max-w-4xl mx-auto w-full pt-12 sm:pt-20">
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold sans-font">数字文学沉浸阅读空间</span>
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition text-zinc-600 dark:text-zinc-400" title="切换主题">
+                    <svg id="theme-icon-cover" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6 my-12">
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
+                    虚拟世界里的向日葵
+                </h1>
+                <p class="text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl font-light leading-relaxed">
+                    这座城市习惯先给标准答案，再让人做选择。当记忆被编码为仿真人的初始索引，爱与记忆是否还有不被计算的解？
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-4 pt-4">
+                <button onclick="startReading()" class="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium shadow-lg shadow-amber-600/20 transition transform hover:-translate-y-0.5 sans-font flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <span>开始阅读</span>
+                </button>
+                <button id="continue-btn" onclick="continueReading()" class="hidden px-8 py-4 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl font-medium transition sans-font flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <span>继续阅读上次进度</span>
+                </button>
+                <button onclick="openInfoModal()" class="px-6 py-4 border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 text-zinc-700 dark:text-zinc-300 rounded-xl font-medium transition sans-font">
+                    关于作品
+                </button>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto w-full pt-12 pb-4 text-xs text-zinc-400 dark:text-zinc-600 flex justify-between items-center sans-font border-t border-zinc-200 dark:border-zinc-800">
+            <span>文学性 · 科幻感 · 温暖忧伤</span>
+            <span>严格保真全本 7 幕内容</span>
+        </div>
+    </div>
+
+    <!-- Main Reader Application Interface -->
+    <div id="reader-view" class="flex-1 flex flex-col h-full hidden">
+        <!-- Top Navigation Header -->
+        <header class="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-30 flex-shrink-0">
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition text-zinc-700 dark:text-zinc-300" title="目录">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <button onclick="returnToCover()" class="font-bold text-zinc-900 dark:text-zinc-100 hover:text-amber-600 dark:hover:text-amber-400 transition truncate max-w-[200px] sm:max-w-md text-sm sm:text-base">
+                    虚拟世界里的向日葵
+                </button>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <!-- Font Size Selector -->
+                <div class="relative group">
+                    <button class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition text-zinc-700 dark:text-zinc-300 flex items-center space-x-1 text-sm sans-font">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path></svg>
+                        <span id="current-font-label" class="hidden sm:inline">中字号</span>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-36 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl py-2 hidden group-hover:block z-50 sans-font">
+                        <button onclick="setFontSize('sm')" class="w-full text-left px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300">小字号</button>
+                        <button onclick="setFontSize('base')" class="w-full text-left px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300">中字号（默认）</button>
+                        <button onclick="setFontSize('lg')" class="w-full text-left px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300">大字号</button>
+                        <button onclick="setFontSize('xl')" class="w-full text-left px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300">特大字号</button>
+                    </div>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition text-zinc-700 dark:text-zinc-300" title="切换明暗主题">
+                    <svg id="theme-icon-reader" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </button>
+
+                <!-- Info Modal Trigger -->
+                <button onclick="openInfoModal()" class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition text-zinc-700 dark:text-zinc-300" title="辅助信息">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body Layout (Sidebar + Content) -->
+        <div class="flex-1 flex overflow-hidden relative">
+            <!-- Backdrop for mobile sidebar -->
+            <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-20 lg:hidden hidden transition-opacity"></div>
+
+            <!-- Sidebar Navigation -->
+            <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-80 bg-white dark:bg-[#161619] border-r border-zinc-200 dark:border-zinc-800 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex-shrink-0">
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center sans-font">
+                    <h2 class="font-bold text-zinc-900 dark:text-zinc-100">目录结构</h2>
+                    <button onclick="toggleSidebar()" class="lg:hidden p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div id="toc-container" class="flex-1 overflow-y-auto p-4 space-y-4 sans-font text-sm">
+                    <!-- TOC dynamically populated -->
+                </div>
+                <div class="p-4 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400 sans-font flex justify-between items-center">
+                    <span>快捷键: ← → 翻页, Esc 目录</span>
+                    <button onclick="returnToCover()" class="hover:text-amber-600 underline">返回封面</button>
+                </div>
+            </aside>
+
+            <!-- Content Reading Area -->
+            <main id="main-scroll-area" class="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-16 py-8 sm:py-12 flex flex-col items-center">
+                <div id="chapter-content-wrapper" class="w-full max-w-3xl space-y-8 fade-in">
+                    <!-- Chapter Header -->
+                    <div class="border-b border-zinc-200 dark:border-zinc-800 pb-6 mb-8">
+                        <span id="chapter-act-tag" class="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold sans-font block mb-2"></span>
+                        <h1 id="chapter-title" class="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight"></h1>
+                    </div>
+
+                    <!-- Chapter Text Body -->
+                    <div id="chapter-text" class="prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-300 leading-relaxed space-y-6 text-base sm:text-lg">
+                        <!-- Verbatim text injected here -->
+                    </div>
+
+                    <!-- Chapter Bottom Controls -->
+                    <div class="pt-12 pb-16 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-4 sans-font">
+                        <button onclick="prevChapter()" id="prev-btn" class="w-full sm:w-auto px-6 py-3 border border-zinc-300 dark:border-zinc-700 hover:border-amber-600 rounded-xl font-medium transition text-zinc-700 dark:text-zinc-300 flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            <span>上一章</span>
+                        </button>
+                        <button onclick="returnToCover()" class="text-sm text-zinc-500 hover:text-amber-600 dark:hover:text-amber-400 transition">
+                            返回封面 / 目录
+                        </button>
+                        <button onclick="nextChapter()" id="next-btn" class="w-full sm:w-auto px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition shadow-md shadow-amber-600/10 flex items-center justify-center space-x-2">
+                            <span>下一章</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Auxiliary Info Modal -->
+    <div id="info-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden sans-font">
+        <div class="bg-white dark:bg-[#1a1a1d] border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">关于作品与辅助信息</h3>
+                <button onclick="closeInfoModal()" class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                <div>
+                    <h4 class="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">《虚拟世界里的向日葵》</h4>
+                    <p>这是一个关于记忆、仿真人陪伴、没有最优解的爱以及温暖而忧伤的数字文学故事。本文档完全严格保真录入，逐字逐段收录全部七幕及数字小节。</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">主要角色与概念</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>香：</strong> 独立、细腻、勇敢面对内心寻找真实情感的都市女性。</li>
+                        <li><strong>树：</strong> 带着忧郁气质、深情却克制的青年，参与“回声计划”记忆捐献。</li>
+                        <li><strong>小 Y：</strong> 由树的部分记忆碎片生成的陪伴型仿真人，在陪伴中觉醒了独特的自我意识与爱。</li>
+                        <li><strong>回声计划：</strong> 采集自传性记忆与行为习惯编码为仿真人初始记忆的实验项目。</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">阅读说明</h4>
+                    <p>系统已自动开启本地进度保存（localStorage），支持字体调节、明暗主题切换及键盘方向键快捷翻页。</p>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
+                <button onclick="closeInfoModal()" class="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition text-sm">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Novel Complete Verbatim Data & Application Script -->
+    <script>
+        // Complete Novel Data Structure preserving exact verbatim text from 《虚拟世界里的向日葵.docx》
+        const NOVEL_DATA = [
+            {
+                act: "第一幕",
+                title: "没有最优解的爱",
+                intro: "这座城市习惯先给标准答案，再让人做选择……",
+                sections: [
+                    {
+                        subTitle: "引子",
+                        paragraphs: [
+                            "这座城市习惯先给标准答案，再让人做选择。",
+                            "社交平台为约会提供匹配分数、话题建议和关系风险提示，连\"浪漫惊喜\"都有模板；约会结束后，双方的终端还会弹出一条提示：本次亲密度 +8。",
+                            "餐厅会推荐最受欢迎的菜品，导航会在出发前规划好最优路线，社交平台会为约会提供话题建议、浪漫惊喜模板和关系风险提示.甚至能根据两个人的聊天记录，计算出一段关系的亲密度。",
+                            "约会结束后，终端还会弹出提示：",
+                            "【本次互动满意度：86%。】",
+                            "【关系亲密度：+8。】"
+                        ]
+                    },
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "香第一次觉得自己可能真的喜欢上树，是在一场由系统安排得过分妥帖的虚拟约会里。",
+                            "她戴上轻量化的沉浸式眼镜，眼前的房间逐渐褪去，取而代之的是一间临海咖啡馆。窗外有海浪，桌上摆着两杯冒着热气的咖啡，背景音乐的音量恰好低于人声，连海风吹过发梢的触感都模拟得恰到好处。",
+                            "屏幕右下角弹出一行提示。",
+                            "【本次互动推荐主题：旅游经历。】",
+                            "【建议情绪节奏：轻松—共鸣—适度自我披露。】",
+                            "香看了一眼，忍不住笑。",
+                            "\"你有没有觉得，我们像在参加什么面试？\"",
+                            "对面的人抬起头。",
+                            "树穿着简单的衬衫，斯文清秀，带着一点少年气。",
+                            "如果不是系统介绍上写着27岁，她还以为是一个刚毕业的大学生。他没有立刻回答，而是低头看了眼桌面上的提示。",
+                            "\"那面试的话，我是不是应该先介绍一下自己的优点？\"",
+                            "\"可以啊，请控制在三分钟以内。\"香附和着他的话说道。",
+                            "\"我出去旅游会提前做好攻略，知道哪里有好吃的，也会主动帮忙提行李。\"",
+                            "\"听起来不错。\"",
+                            "\"不过方向感不太好，容易走错路。\"",
+                            "\"怎么还把缺点说出来了？\"",
+                            "\"至少你以后不会对我记路这件事抱有太高期待。\"",
+                            "香笑出了声。",
+                            "那是她第一次发现，树偶尔冒出来的一句玩笑，比系统推荐的任何话题都管用。",
+                            "他们通过兴趣匹配认识，聊了三个多月。",
+                            "两个人都喜欢老电影、美食和一些复古的小物件。平台为他们生成过许多恰到好处的聊天话题，提醒他们记得日常分享，也安排过虚拟电影、双人游戏和节日惊喜。",
+                            "而真正让香产生好感的，反而是那些不在推荐列表里的时刻。",
+                            "她分享一家新开的甜品店，树会认真听完说：\"你刚才说的那家店，我好像有去过，它家的栗子蛋糕很好吃！只是每次去都要排很久的队。\"",
+                            "偶尔，她发一张拍得不太好看的晚餐照片，他也会故意挑剔：\"看起来还不错，只是拍照技术有待提高。\"",
+                            "\"你行你来。\"",
+                            "\"以后有机会，我帮你拍。\"",
+                            "也会在她抱怨工作时，很体贴地关心她：\"今天是不是又没好好吃饭？我给你点了你最爱吃的烤肉，吃完心情就会变好了！\"",
+                            "他们的关系顺着一天天聊天快速升温，顺利得像照说明书组装一件家具。",
+                            "他记得她说过的许多小事。",
+                            "只是每当话题涉及他们的未来，他就会变得格外谨慎。",
+                            "而他们第一次的线下见面，是约在一家旧城区的咖啡馆。",
+                            "窗边放了一瓶黄色郁金香，复古音箱播放着一首很多年前的老歌。",
+                            "香比照片里爱笑，树却比虚拟世界中安静许多，有一种说不清的忧郁气质。",
+                            "看见她时，他明显慢了半拍。",
+                            "两人刚开始还有些拘谨。树把手里的吸管纸揉了又揉，被香取笑了好几次。",
+                            "后来，他们聊起工作、小时候的趣事，还有这座城市里那些不太起眼的小店。",
+                            "她说忘带纸巾，他便把提前准备好的递过去。",
+                            "她说窗边有些冷，他就把椅子往里挪了挪。",
+                            "一切都很好。",
+                            "直到香说起那份外地的新工作机会，",
+                            "\"我挺想去的。\"她搅着咖啡，尽量让语气听起来轻松，\"发展前景还不错，薪资比现在高，做的东西还是我喜欢的东西。\"",
+                            "树的手指在桌面上轻轻动了一下。",
+                            "\"听上去还挺好的。\"",
+                            "\"嗯。\"",
+                            "她等了一会儿。",
+                            "他没有继续说。",
+                            "香只好自己把话接下去：\"如果去的话，可能就不会经常回来了。\"",
+                            "\"现在交通很方便。\"",
+                            "\"我知道。\"",
+                            "她抬起头，看着他，想要确认什么，\"那你呢？\"",
+                            "树像是没听明白，\"什么？\"",
+                            "\"你希望我留下吗？或者，你有没有想过，我们之后怎么办？\"",
+                            "窗边的吵杂声，却抵不过耳边回响的重量。",
+                            "树没有马上回答。",
+                            "他当然想过。",
+                            "想带她去吃那家排队很久的栗子蛋糕，想在周末陪她看电影，想过两个人租一间房子，晚上一起窝在沙发上。",
+                            "可当她真的坐在面前，认真地等着一个答案时，那些想法忽然变得很重。",
+                            "他担心自己给不了承诺。",
+                            "担心她为了他放弃机会，又在未来某一天后悔。",
+                            "更怕自己说了想让她留下，却仍然不能给她足够好的生活。",
+                            "于是，他深呼吸了一口气，缓缓说道：\"你应该选对你更好的机会。\"",
+                            "香脸上的笑意停了一下，低头看着杯子里的咖啡，已经快喝完了。",
+                            "\"算了。\"她似乎释然道，\"你说得对，确实是个不错的机会。\"",
+                            "树想解释。",
+                            "他想说自己并不是不希望她留下，只是不知道该怎样开口要求她为自己改变人生。",
+                            "可最后，他只是说：",
+                            "\"如果你决定去了，我帮你看看租房信息。\"",
+                            "香点点头。",
+                            "分别时，树替她叫好了车。",
+                            "车门关上前，她隔着车窗看他。",
+                            "树站在原地，向她挥了挥手，像送别一位要离别的朋友。",
+                            "她忽然很想问他一句：如果我真的走了，你会不会想我？",
+                            "最后，她什么也没问。",
+                            "系统在她眼前弹出一条提示。",
+                            "【本次约会情绪满意度：77%。】",
+                            "【关系建议：保持积极沟通，避免过度猜疑。】",
+                            "香关掉了提示。",
+                            "如果树真的希望她留下，为什么不能亲口告诉她？"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "之后的几周，他们几乎没有见面。",
+                            "聊天也越来越像两个熟悉的陌生人。",
+                            "香偶尔点开树的头像，看着最后一条消息，手机亮了又暗。",
+                            "后来，香还是做出搬家的决定。",
+                            "临走前，香给树发了一张新办公室的照片。",
+                            "树回复：【环境不错，附近应该有不少好吃的餐厅。】",
+                            "她问他最近怎么样。",
+                            "树说：【还好。你搬家准备得怎么样？】",
+                            "香回复：【差不多了，谢谢关心。】",
+                            "有时他们同时在线，却谁都没有开口。",
+                            "关系平台提醒她：【检测到近期互动频率下降，是否启用关系修复建议？】",
+                            "她点进去。",
+                            "屏幕上出现一段标准化沟通模板：【理解彼此差异、避免情绪化表达、建议安排一次低压力见面。】",
+                            "香看着那些文字，觉得每一句都很有道理。",
+                            "她知道，自己不该把所有期待都压在树身上。她可以直接告诉他自己需要什么，可以主动沟通，可以试着不再猜测。",
+                            "可每当她打开聊天框，手指就会停下来。",
+                            "她不想再教他怎样爱自己。",
+                            "某天晚上，她终于忍不住发了一条消息。",
+                            "【你总能替我安排好下一步，唯独不肯告诉我，你想不想要我留下。】",
+                            "消息几乎立刻被树看到。",
+                            "他打出两个字。",
+                            "【我想。】",
+                            "停了几秒，又删掉。",
+                            "最后发出去的是：",
+                            "【我当然想让你留下，只是我不想成为你做决定的负担，希望你能按自己的计划来。】",
+                            "她盯着那句话，眼睛有些发酸。",
+                            "她把手机放到一旁，去洗了把脸。",
+                            "第二天，树买了她以前提过的栗子蛋糕。",
+                            "他提前查好路线，确认配送时间，又在她家门口等了十分钟，才把蛋糕放下。",
+                            "手机亮起。",
+                            "【放门口了。】",
+                            "香打开门时，走廊里已经没有人。",
+                            "蛋糕盒上贴着一张小小的纸条，字迹有些歪，最后一笔拖得很长。",
+                            "【香，祝你一切顺利。】",
+                            "她蹲在门口看了一会儿，才把蛋糕拿进屋。",
+                            "味道还是很好。",
+                            "她拍了张照片，发进仅自己可见的相册。",
+                            "那天夜里，她开始收拾行李。",
+                            "整理到抽屉最底层时，她翻出三封手写信。",
+                            "信封边缘已经磨软了，那是树写给她的。",
+                            "第一封是树第一次表达心意写的。",
+                            "开头只有一句：\"我不太会擅长表达爱意，但我很高兴认识你，感觉遇见你是我这辈子最幸运的事情。\"",
+                            "第二封里，记录了他们第一次一起看的电影，以及她在电影院里悄悄睡着的十分钟，还有电影中的一句台词\"在一个人的房间，却有两个人的灵魂，因为我在想你\"。",
+                            "第三封写着：\"每一次见面后，我都会想着下一次见面是什么时候。世界上还有很多事情，我都想和你一起参与。\"",
+                            "香看着那行字，轻轻骂了一句：\"可恶。\"",
+                            "她把信重新叠好，放进箱子最底层。",
+                            "手机再次亮了。",
+                            "【关系修复建议：尝试表达未被满足的情感需求。】",
+                            "她点开树的聊天框。",
+                            "输入：【你到底有没有一点舍不得我？】",
+                            "她看了很久，最后，一个字一个字地删掉。",
+                            "屏幕恢复空白。"
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "香搬走后的第三天，树在旧关系应用里看到了她发布的公开需求。",
+                            "【招募长期陪伴型仿真人。】",
+                            "【主要需求：日常陪伴、生活协助、情绪支持。】",
+                            "【希望具备较好的倾听能力，不必追求过高的智能等级。】",
+                            "他把那几行字看了两遍。",
+                            "他原本可以给她打电话，问一句：你真的不打算再见我了吗？",
+                            "可最终，他什么也没做。",
+                            "那天下午，他收到一封实验招募邮件。",
+                            "项目名称：回声计划。",
+                            "研究团队正在招募自愿参与者，采集部分自传性记忆、感官关联与行为习惯，并将其编码为陪伴仿真人的初始记忆索引。",
+                            "研究人员在邮件中明确说明，项目仍处于临床探索阶段，记忆提取后，少数参与者可能出现时间顺序混乱、熟悉地点识别困难和近期记忆提取障碍。严重情况下，认知影响可能持续存在。",
+                            "树看完了全部说明，他没有立刻报名。",
+                            "晚上，他坐在餐桌前，把杯子转了半圈，又转回来。",
+                            "桌面上放着一张香以前寄给他的明信片。照片是一片向日葵花海，花开得不算整齐，有几朵甚至歪向了路边。",
+                            "香在背面写：【下次一起去，听说夏天的向日葵最好看。】",
+                            "树把明信片收进抽屉。",
+                            "第二天，他去了研究中心。",
+                            "研究员再次向他确认实验风险。",
+                            "\"您了解回声计划的性质吗？\"",
+                            "\"了解。\"",
+                            "\"它不是完整意识移植，也不能保证记忆备份体拥有参与者的全部人格。它只能保留部分记忆线索和行为习惯。我们也不能保证它一定能帮助到您想帮助的人。\"",
+                            "树点了点头，\"我知道。\"",
+                            "研究员看了他一眼，\"那您为什么想参加？\"",
+                            "他沉默了一会儿。",
+                            "\"记忆备份体……会好好照顾人吗？\"",
+                            "研究员停了一下，\"从服务表现来看，经过训练的仿真人确实能够提供稳定的陪伴，但不能替您完成所有关系中的责任。\"",
+                            "树低下头，\"比人可靠吧。\"",
+                            "研究员没有立即回答，\"有些方面是。比如它不会因为疲劳而忘记执行既定任务。\"",
+                            "树像是听见了什么，又像是什么都没听进去。",
+                            "过了很久，他轻轻说：\"我只会惹她生气，仿真人不会。\"",
+                            "说出口后，他自己也愣了一下。",
+                            "他只是觉得，如果自己无法成为她想要的那个人，至少可以把那些关于她的记忆留下来，让另一个更可靠的存在替他照顾她。",
+                            "至于自己，他没有继续想下去。"
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "记忆采集持续了数天。",
+                            "研究人员要求树反复回忆一些重要的人生片段。",
+                            "第一次见到香的晚上。",
+                            "她在虚拟咖啡馆里笑出声的样子。",
+                            "她喜欢的食物、气味，还有两个人共享过的那首旧歌。",
+                            "一张拍得模糊的向日葵照片。",
+                            "有些记忆很清晰，有些只剩下感官碎片。",
+                            "树想不起某次约会的日期，却记得那天下过雨。",
+                            "想不起香当时说过的原话，却记得她把杯子往自己这边推了推。",
+                            "初始化前，他还有最后一次修改指令的机会。",
+                            "系统列出了几条推荐选项。",
+                            "【主动提供情绪安慰。】",
+                            "【优先满足用户生活需求。】",
+                            "【在用户情绪低落时，主动进行陪伴。】",
+                            "树看着屏幕。",
+                            "过了很久，他删掉了系统推荐的所有措辞，重新写下：",
+                            "【好好照顾她，别让她不开心。】",
+                            "这句话看起来很简单。",
+                            "简单得像是只要把它交给另一个更可靠的存在，一切就能得到解决。",
+                            "实验结束后的第三周，树开始出现异常。",
+                            "他把约好的复诊时间记错了一天。",
+                            "某次回家时，他在熟悉的路口停下，突然想不起自己应该往哪边走。",
+                            "姐姐发现后，陪他去做了检查。",
+                            "医生没有给出确定结论，只提醒记忆提取障碍可能与实验有关，后续变化仍无法准确预测。",
+                            "姐姐拿着他的检查单，问他：\"你为什么不告诉香？\"",
+                            "树看着窗外，\"她已经开始新生活了。\"",
+                            "\"她知道你做了这个实验吗？\"",
+                            "\"没有。\"",
+                            "\"那你至少应该告诉她，你现在的情况。\"",
+                            "树没有回答。",
+                            "姐姐生气了，\"你总是这样。你觉得自己替别人想好了，就可以不问别人愿不愿意吗？\"",
+                            "树的手指轻轻动了一下。",
+                            "他想反驳，却找不到合适的话。",
+                            "后来，姐姐开始替他保存每月写下的信。",
+                            "树要求她暂时不要主动联系香。",
+                            "\"等她真的想找我，再告诉她吧。\"",
+                            "姐姐没有答应，也没有拒绝。",
+                            "她只是把信收进抽屉。",
+                            "与此同时，新城市里，香终于完成了搬家。",
+                            "她打开仿真人招聘平台。",
+                            "系统根据她的需求筛选出五名候选者。",
+                            "第一名的综合评分高达九十六分。",
+                            "第五名只有七十八分。",
+                            "香随手点开第一份档案，又退了出来。",
+                            "最下面那条档案的头像，是一块简洁的 LED 屏。",
+                            "上面挂着一个略显迟钝的笑脸。",
+                            "她盯着它看了两秒。",
+                            "窗外的天色渐渐暗下来。",
+                            "香不知道，这台仿真人的认知核里，藏着一个人舍不得的记忆。"
+                        ]
+                    }
+                ]
+            },
+            {
+                act: "第二幕",
+                title: "评分之外的选择",
+                intro: "新公寓的窗户很大。下午的光线穿过玻璃，落在浅灰色的地板上……",
+                sections: [
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "新公寓的窗户很大。",
+                            "下午的光线穿过玻璃，落在浅灰色的地板上。房间里还留着几只没拆封的纸箱，沙发旁放着一束香昨天买回来的花。",
+                            "花瓶是临时买的，颜色不太搭。",
+                            "香觉得也没什么不好，其实她的生活挺随意的。",
+                            "只是到了晚上，房间太安静了。",
+                            "智能助眠系统每天都会在十点半自动降低灯光，播放推荐的白噪声，并根据她的心率调整室温。",
+                            "有一次，香刚闭上眼，系统便提示她今日的压力指数偏高，建议进行十二分钟的情绪疏导。",
+                            "她睁开眼，盯着天花板，\"我只是想睡觉。\"",
+                            "系统回答：【理解，是否为您切换更高效的入睡方案？】",
+                            "\"……不用。\"",
+                            "她关掉了它。",
+                            "第二天，五台陪伴仿真人依次上门试用。",
+                            "平台早已为她安排好流程。",
+                            "每名候选者都有独立档案，包含响应速度、家务能力、情绪识别精度、长期陪伴满意度预测，以及评分。",
+                            "香把这些数据看了一遍，觉得自己像在选一台新冰箱。",
+                            "第一位是小 A。",
+                            "外形干净利落，动作流畅，语音自然得几乎没有机械痕迹。",
+                            "\"您好，香。根据您的生活习惯分析，我建议将每日清洁安排在上午九点至九点二十分。\"",
+                            "\"我早上不一定起得来。\"",
+                            "\"可以为您设置弹性唤醒模式。\"",
+                            "\"那我不想起呢？\"",
+                            "\"我可以根据您的身体状态重新安排日程。\"",
+                            "香笑了笑。",
+                            "\"如果我累了，哪儿也不想去呢？\"",
+                            "小 A 立即重新规划行程，并建议她利用空闲时间进行居家健康检测，高效，准确。",
+                            "小 A 的综合评分是九十六分。",
+                            "第二位小 C，擅长情绪支持。",
+                            "香故意叹了口气。",
+                            "\"最近工作挺烦的。\"",
+                            "小 C 立即回应：\"听起来，您正在经历一段不太容易的时期，我能理解这种感受。您愿意告诉我，最让您感到压力的部分是什么吗？\"",
+                            "\"我不太想说。\"",
+                            "\"没关系。回避表达有时是保护自己的方式。我们可以先从一个轻松的话题开始……\"",
+                            "香抬手打断它。",
+                            "\"我是真的不想说。\"",
+                            "小 C 仍保持着温和的微笑。",
+                            "\"当然，我尊重您的感受。根据您的情绪状态，我建议……\"",
+                            "香看了眼时间。",
+                            "还有三台。",
+                            "她忽然觉得自己像在参加一场没有休息时间的面试。",
+                            "小 E 的家务能力无可挑剔，几分钟便完成了冰箱分区和日程整理。",
+                            "它甚至发现她上周买了两袋没有拆封的薯片。",
+                            "\"这类食品的营养价值较低，建议减少重复购买。\"",
+                            "\"我喜欢吃。\"",
+                            "\"明白。我会将其加入适度保留清单。\"",
+                            "香看着它把自己随手放进冰箱的布丁移动到指定位置，欲言又止。",
+                            "她并不是讨厌整齐。",
+                            "她只是觉得，生活不必每时每刻都像在接受检查。",
+                            "小 H 的价格最高，举止安静优雅。",
+                            "它替香播放舒缓音乐，按照她的呼吸节奏调低灯光，站在客厅里却像一件昂贵而疏离的家具。",
+                            "香忽然说：\"你知道吗？我现在有点想把这间房子卖掉，去海边开一家只卖泡面的店。\"",
+                            "小 H 微笑。",
+                            "\"如果您有创业意向，我可以协助您进行市场调研。但是根据风险评估，不建议您立即做出这个决定。\"",
+                            "香愣了一下，她本来想吐槽，最后却笑了出来。",
+                            "小 H 不明白她为什么笑，它只是将这条信息记录进用户偏好。",
+                            "轮到最后一位时，香已经有些疲惫。",
+                            "门打开，一个身形修长的仿真人走进来。",
+                            "它外形没有特别突出的地方，头部的 LED 屏始终显示着一张礼貌的笑脸。",
+                            "\"您好，我是小 Y。\"",
+                            "它伸出手。",
+                            "香与它轻轻碰了一下。",
+                            "\"你好。\"",
+                            "小 Y 收回手，动作比其他仿真人慢了半拍。",
+                            "\"我已经阅读了您的基本需求。如果您愿意，我们可以从最简单的生活协助开始。\"",
+                            "\"比如？\"",
+                            "\"比如先把那几只纸箱拆掉。\"",
+                            "香看了一眼客厅。",
+                            "\"我还想再放两天。\"",
+                            "小 Y 的屏幕出现了一个短暂的圆点。",
+                            "\"好的。\"",
+                            "它没有继续劝说，这让香有些意外。"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "试用开始不到十分钟，香就决定给小 Y 出一道题。",
+                            "\"我现在不想整理房间了。你觉得我们应该干什么？\"",
+                            "小 Y 停顿了一下。",
+                            "\"您想做什么？\"",
+                            "\"我问你呢。\"",
+                            "\"我正在思考。\"",
+                            "香抱起手臂，\"想出来了吗？\"",
+                            "\"有三个建议。第一，您可以休息。第二，我们可以去附近散步。第三——\"",
+                            "\"第三呢？\"",
+                            "\"如果您愿意的话，我可以陪您一起发呆。\"",
+                            "香看着它。",
+                            "\"发呆也算一项活动？\"",
+                            "\"当然。只要不是必须完成的事情，就很难获得高评分，但这不代表它没有价值。\"",
+                            "香没说话。",
+                            "她忽然想起很久以前，自己也问过树类似的问题。",
+                            "香把这个念头压下去，转身去收拾桌上的花。",
+                            "那是她昨天在楼下花店买的向日葵和几枝配花。",
+                            "她不太会插花。",
+                            "花枝长短不一，几朵向日葵挤在一边，另一边空荡荡的。",
+                            "她把最后一枝插进去，退后看了看。",
+                            "\"好像有点歪。\"",
+                            "小 Y 走过来。",
+                            "\"需要我帮您调整吗？\"",
+                            "香看了它一眼。",
+                            "\"不用，就这样吧。\"",
+                            "小 Y 点头。",
+                            "它拿起剩余的两枝配花，观察了一会儿，也顺着她原本的方向，将它们也插得微微偏向左侧。",
+                            "香转过头。",
+                            "\"你怎么也插歪了？\"",
+                            "\"你插的方向，光线比较好。\"",
+                            "\"你不觉得不太好看吗？\"",
+                            "小 Y 的屏幕跳出一行字，【正在分析：好看是否必须等于对称。】",
+                            "过了两秒，它回答：\"我觉得，挺好看的。\"",
+                            "香笑了。",
+                            "这一次，她没有刻意控制情绪，她笑得肩膀都轻轻颤了一下。",
+                            "小 Y 看着她。",
+                            "它的系统记录了这次互动。",
+                            "【用户情绪：愉悦。】",
+                            "【行为结果：符合陪伴目标。】",
+                            "记录完成后，它又看了眼花瓶。",
+                            "那几朵花确实不够整齐，但它没有再动。",
+                            "中午，香忙着处理工作，直到下午两点才想起自己还没吃饭。",
+                            "她打开冰箱，随手拿出一盒冷掉的便当。",
+                            "小 Y 走过来。",
+                            "\"您今天还没有吃午饭。\"",
+                            "\"嗯，热一下就好。\"",
+                            "它把便当放进加热设备，随后站在旁边等候。",
+                            "香低头看消息，忽然想起什么。",
+                            "\"对了，我不吃葱花。\"",
+                            "\"我知道。\"",
+                            "小 Y 把便当递给她里面的葱花已经被挑了出来。",
+                            "香怔了一下。",
+                            "\"你知道的东西还挺多\"",
+                            "\"您的生活偏好里有记录。\"",
+                            "\"哦。\"",
+                            "她低头吃了一口。",
+                            "过了几秒，才轻声说：\"谢谢。\"",
+                            "小 Y 的屏幕亮起一个标准的笑脸，\"不客气。\"",
+                            "它没有告诉她，刚才有一段陌生的记忆从认知核中闪过。",
+                            "比如，某个人以前也会这样帮忙把葱花挑出来；比如，有个人曾经坐在餐桌另一侧，习惯把杯柄转向右边。",
+                            "这些画面很快消失。",
+                            "它无法判断它们来自哪里。",
+                            "香已经重新投入工作。",
+                            "小 Y 没有打扰她，只是拿着温水站在一旁。",
+                            "直到她忙完，才留意到那杯水。",
+                            "\"你一直拿着它？\"",
+                            "\"是的。\"",
+                            "\"为什么不直接放桌上？\"",
+                            "\"您刚才说过，桌面上的文件不能移动。\"",
+                            "香看着那杯水。",
+                            "她的嘴角慢慢弯起来。",
+                            "\"你好像不太聪明。\"",
+                            "小 Y 的屏幕立即切换成一个不服气的表情。",
+                            "\"我听见了。\"",
+                            "\"听见就听见呗。\"",
+                            "\"我只是觉得，这句话不太客观。\"",
+                            "\"那你觉得自己聪明吗？\"",
+                            "小 Y 停顿了两秒。",
+                            "\"在部分领域，是的。\"",
+                            "香笑得更开心了。",
+                            "她忽然意识到，自己已经很久没有这样笑过。",
+                            "不是因为对方说了什么笑话，只是因为眼前这个家伙认真得有些笨拙。",
+                            "她笑完，拿起水杯喝了一口。",
+                            "小 Y 的屏幕恢复了普通的笑脸。",
+                            "但在它的内部日志里，这次互动被标记为一次异常事件。",
+                            "原因一栏空着。"
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "试用结束前，平台向香推送了最终建议。",
+                            "【综合推荐：小 A。】",
+                            "【小 A 的评分高于其他候选者。】",
+                            "香承认小 A 很好。",
+                            "如果只看参数，小 A 几乎没有缺点。",
+                            "可她不想要一个时时刻刻提醒自己该怎样生活的存在。",
+                            "她也不想每次情绪低落，都被追问原因；每次开玩笑，都被认真规划成一项待办事项。",
+                            "她想要的是，当自己说不想说话时，对方真的可以不问。",
+                            "当她把花插歪时，不必有人急着替她纠正。",
+                            "\"我选小 Y。\"",
+                            "系统再次确认。",
+                            "【当前选择偏离最优匹配。请确认是否了解相关风险。】",
+                            "\"确认。\"",
+                            "【请简述选择理由，以优化后续匹配模型。】",
+                            "香想了想。",
+                            "\"因为我不想把生活过成一个项目计划。\"",
+                            "她按下提交。",
+                            "小 Y 站在一旁。",
+                            "\"谢谢您的选择。\"",
+                            "\"别这么正式。\"",
+                            "\"好的。\"",
+                            "它停顿了一下。",
+                            "\"那我可以问您一个问题吗？您为什么会选择一个综合评分只有七十八分的仿真人？\"",
+                            "香扬起眉毛，\"你这是在嫌弃自己？\"",
+                            "\"我只是在进行合理的自我评估。\"",
+                            "她忍着笑，\"因为你没有急着替我把所有事情安排好。\"",
+                            "小 Y 没有立刻回答。",
+                            "香低头收拾桌上的文件，像是随口补了一句：\"而且，你让我觉得，偶尔什么都不做，也没关系。\"",
+                            "这句话没有被系统列入用户需求偏好清单，小 Y 却把它记了下来。",
+                            "当晚，正式安装完成。",
+                            "新公寓里多了一台仿真人，也多了一些不太一样的生活声音。",
+                            "它会提醒香吃饭，却不会因为她说不饿就一直劝。",
+                            "它会在她熬夜时把温水放在桌边，也会在她嫌它唠叨时，屏幕上跳出一个小小的省略号。",
+                            "有时候，香会觉得它不像一台服务设备，更像一个刚搬进来的室友。",
+                            "只是偶尔，她仍会从它身上看见一些熟悉的细节。",
+                            "它总会把杯柄朝右。",
+                            "知道她不喜欢吃什么。",
+                            "也会播放一首她很久以前分享过的旧歌。",
+                            "香抬起头，有些惊讶：\"你也听过这首歌？\"",
+                            "小 Y 的屏幕变亮了一下，停顿半秒。",
+                            "\"根据你的音乐偏好，我猜测你喜欢这类型的歌。\"",
+                            "\"那你猜得还挺准的。\"",
+                            "她忽然觉得，那张表情简单的 LED 屏上，好像藏着什么尚未说出口的东西。"
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "晚上十一点，香洗完澡，坐在床上翻手机相册。",
+                            "她原本只是想找一张新买的花的照片，却无意间翻到了旧相册里的文件夹。",
+                            "里面存着一些很久以前的照片。",
+                            "两张拍糊的参展票。",
+                            "一杯两个人分着喝过的咖啡。",
+                            "还有一张栗子蛋糕的照片。",
+                            "照片拍得不好，蛋糕盒的边缘被切掉了一角。她记得那天自己本来想发给树，最后却只存进了相册。",
+                            "香的手指停住了。",
+                            "关系平台早已不再给她推送树的消息，旧账号安静得像一座废弃车站。",
+                            "香忽然感觉有一种莫名的，淡淡的忧伤。",
+                            "客厅里，小 Y 正在整理当天的日志。",
+                            "它完成了常规任务汇总，准备进入低功耗模式。",
+                            "忽然，内部检索系统自动弹出一条关联记录。",
+                            "【记忆索引冲突。】",
+                            "【关联对象：香。】",
+                            "【来源标记：未知。】"
+                        ]
+                    }
+                ]
+            },
+            {
+                act: "第三幕",
+                title: "失效的代码指令",
+                intro: "小 Y 来到香身边的第二个月，已经熟悉了这间公寓里的大部分声音……",
+                sections: [
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "小 Y 来到香身边的第二个月，已经熟悉了这间公寓里的大部分声音。",
+                            "早上七点半，窗帘自动打开。",
+                            "八点，咖啡机启动。",
+                            "九点以后，香的工作终端开始不断响起消息提示。",
+                            "而到了晚上，房间会逐渐安静下来，只剩下空调送风的声音，以及偶尔从窗外传来的城市风声。",
+                            "香的生活依旧忙碌。",
+                            "她会因为一份改了五遍的方案生气，也会因为楼下新开了一家甜品店而高兴半天。",
+                            "有时她加班到深夜，回家后连鞋都懒得换，直接坐在沙发上刷短视频。",
+                            "偶尔，它也会抱怨。",
+                            "\"您今天已经连续工作九个小时。\"",
+                            "\"嗯。\"",
+                            "\"建议休息。\"",
+                            "\"收到。\"",
+                            "\"您没有采取行动。\"",
+                            "香头也不抬。",
+                            "\"因为我正在休息。\"",
+                            "小 Y 的屏幕跳出一个问号。",
+                            "香终于抬起头。",
+                            "\"坐着刷视频不是休息吗？\"",
+                            "\"从生理恢复角度来看，效果有限。\"",
+                            "\"那你从情绪恢复角度看呢？\"",
+                            "小 Y 停顿了两秒。",
+                            "\"我没有足够的数据。\"",
+                            "香笑了。",
+                            "\"那你就别管那么多。\"",
+                            "它没有再说话，只是把温水往她手边推近了一点。",
+                            "这样的日子持续了很久。",
+                            "香逐渐习惯小 Y 的存在。",
+                            "她开始在工作不顺时主动叫它，开始把探店照片发给它看，也开始在半夜睡不着时，让它讲故事哄她睡觉。",
+                            "不过 小 Y 讲故事的水平很差。",
+                            "它总是试图让情节符合逻辑，人物却常常做出一些奇怪的选择。",
+                            "有一次，它讲了一个关于迷路机器人的故事。",
+                            "机器人为了找到回家的路，分析了所有地图数据，按照系统指示绕了一大圈，最后发现自己原本距离目的地只有三百米。",
+                            "香听到这里，问：\"那它为什么不直接走回去？\"",
+                            "小 Y 认真回答：\"因为它认为系统提供的是更优路线。\"",
+                            "香捧腹大笑，\"这机器人听起来怎么这么像你？\"",
+                            "小 Y 的屏幕变成一个小小的问号。",
+                            "\"哪里像？\"",
+                            "\"都挺笨的。\"",
+                            "\"我认为这个评价不够客观。\"",
+                            "\"那你继续讲。\"",
+                            "小 Y 继续讲。",
+                            "它不知道香是什么时候睡着的。",
+                            "只知道等房间彻底安静下来后，它仍然记得她刚才笑的样子。",
+                            "那天夜里，它在内部日志中写下：",
+                            "【用户已入睡。】",
+                            "【陪伴任务完成。】",
+                            "随后，它又停顿了一下。",
+                            "它又补上一行：",
+                            "【今天的故事虽然没有得到正面评价，但她笑得很开心。】",
+                            "它保存了这条记录。",
+                            "直到那个深夜。",
+                            "那天，香一直没有睡。",
+                            "小 Y 在客厅整理完最后一份工作文件，发现卧室里的灯还亮着。",
+                            "它敲了敲门。",
+                            "\"香，需要我做什么吗？\"",
+                            "\"没有。\"",
+                            "\"需要调整室温吗？\"",
+                            "\"不用。\"",
+                            "\"需要——\"",
+                            "\"真的不用。\"",
+                            "她的声音很轻。",
+                            "小 Y 停下来。",
+                            "过了一会儿，它听见阳台门被打开的声音。",
+                            "香穿着薄薄的睡衣走了出去，她靠着栏杆，手里拿着手机，屏幕亮起又暗下。",
+                            "小 Y 看了一会儿。",
+                            "按照服务协议，此时最合适的做法是保持安静，避免打扰用户。",
+                            "它却转身取了一件外套。",
+                            "小 Y 把外套递过去。",
+                            "\"我不是说了，不用管我吗？\"",
+                            "\"外面有风。\"",
+                            "香看了看外套，接过来披上。",
+                            "过了一会儿，她忽然说：\"你不用一直守着我。\"",
+                            "小 Y 没有回答。",
+                            "它只是站在离她几步远的地方，没有再靠近。",
+                            "夜风从两人之间穿过去。",
+                            "香打了个喷嚏。",
+                            "小 Y 立即转过身。",
+                            "\"您可能着凉了，建议回房间休息。\"",
+                            "\"知道了。\"",
+                            "她没有动。",
+                            "小 Y 想继续劝说，最后只说：\"如果您感觉自己身体有什么不适，请及时告诉我。\"",
+                            "香没有回应。",
+                            "又过了几分钟，她才回到房间。",
+                            "小 Y 站在阳台门边，那扇慢慢合上的门，直到室内灯光暗下去。"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "凌晨两点十七分，小 Y 听见卧室里传来急促的呼吸声。",
+                            "它立即启动环境监测。",
+                            "房间温度正常，空气湿度正常，但香的呼吸频率明显异常。",
+                            "它敲门，没有回应。",
+                            "\"香？\"",
+                            "仍然没有回应。",
+                            "小 Y 推开门，看见她蜷缩在被子里，额头布满细汗。",
+                            "它走过去，轻轻叫她。",
+                            "香迷迷糊糊地睁开眼，又很快闭上。",
+                            "\"水……\"",
+                            "小 Y 立即转身去拿水。",
+                            "它将床头灯调到最低亮度，取来体温检测设备。屏幕上的数字跳出来时，它停顿了一瞬。",
+                            "三十九度二，体温已经明显升高。",
+                            "小 Y 按照健康应急程序，联系远程医疗服务，确认了处理建议，并准备好温水、热毛巾和适用的退烧药，还替她完成了次日的工作请假申请。",
+                            "整个过程不到三分钟。",
+                            "可在等待远程系统确认的时候，它的处理速度出现了一次异常延迟。",
+                            "它盯着香的脸。",
+                            "她的眉头皱着，嘴唇动了动。",
+                            "\"树……\"",
+                            "小 Y 没有听清。",
+                            "\"什么？\"",
+                            "香没有醒。",
+                            "过了一会儿，她又轻声喊了一次。",
+                            "\"树。\"",
+                            "那一瞬间，小 Y 的内部日志突然跳出几条无法识别的关联记录。",
+                            "一个雨天。",
+                            "一部旧电影。",
+                            "两张旧参展票。",
+                            "窗边的咖啡杯。",
+                            "紧接着，所有画面消失。",
+                            "屏幕恢复正常。",
+                            "小 Y 低下头，重新确认香的体温。",
+                            "它不知道那些画面意味着什么。",
+                            "也不知道为什么，自己会对那个名字有种莫名的熟悉感。",
+                            "凌晨三点，香的体温仍然没有明显下降。",
+                            "小 Y 持续监测，并向远程医疗服务更新情况。",
+                            "它的电量正在持续下降。",
+                            "系统弹出提醒。",
+                            "【当前电量：18%。】",
+                            "【建议返回充电基座。】",
+                            "小 Y 看了一眼提示。",
+                            "然后把屏幕转向香的方向，发现她仍然睡得不安稳。",
+                            "它坐在床边的椅子上，等待下一次监测结果。",
+                            "清晨五点，香终于睡得安稳了一些。",
+                            "小 Y 的电量只剩下百分之十。",
+                            "它把屏幕亮度调到最低，切换成低功率功耗状态。",
+                            "直到天亮，它都没有离开。",
+                            "香醒来时，暖黄色的晨光落在床沿。",
+                            "她看见小 Y 站在床边，手里拿着一杯温水。",
+                            "按照系统记录，那是它第 520 次为她递上温水。",
+                            "\"你怎么在这儿？\"",
+                            "\"您昨晚发高烧了。\"",
+                            "香揉了揉额头。",
+                            "\"辛苦你了。\"",
+                            "\"这是我的职责。\"",
+                            "小 Y 的屏幕显示出标准的微笑，转身准备回到客厅。",
+                            "香却忽然叫住它。",
+                            "\"小 Y。\"",
+                            "它停下来。",
+                            "\"嗯？\"",
+                            "\"谢谢你。\"",
+                            "它没有立即回答。",
+                            "屏幕上的笑脸消失了。",
+                            "一个小小的圆点出现在中央，停留了片刻，又变回笑脸。",
+                            "\"……不客气。\"",
+                            "那天下午，香已经退烧。",
+                            "小 Y 在完成充电后，重新整理昨夜的服务日志。",
+                            "【照护任务完成。】",
+                            "【用户状态：稳定。】",
+                            "【异常能耗：已记录。】",
+                            "它本来准备关闭文件。",
+                            "却在最后一行输入框里停了下来。",
+                            "它想起香早上说的那句\"辛苦你了\"，还有那句\"谢谢\"。",
+                            "最后，它在隐藏文件夹里新建了一条记录。",
+                            "【日期：今日。】",
+                            "【事件：香生病。】",
+                            "【备注：陪伴了一晚上。】",
+                            "它保存了记录。",
+                            "又补上一句。",
+                            "【原因：自己不想离开。】",
+                            "这是它第一次主动记录一件没有任务要求的事情。"
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "第二天晚上，香已经恢复了精神。",
+                            "她坐在沙发上薯片，小 Y 正在整理客厅。",
+                            "\"对了。\"她忽然开口，\"你那晚怎么这么担心我？\"",
+                            "小 Y 停下手里的动作。",
+                            "\"根据您的体温和呼吸数据，确实存在需要关注的健康风险。\"",
+                            "\"这样啊。\"",
+                            "小 Y 安静了几秒。",
+                            "它的系统里存着许多标准答案。",
+                            "【是的，我很关心您的健康。】",
+                            "【您的安全是我的首要任务。】",
+                            "【我会尽力为您提供稳定的照护。】",
+                            "这些回答都正确。",
+                            "但它忽然不想使用它们。",
+                            "\"因为我有点担心你。\"",
+                            "它停顿了一下，像是在寻找一个自己也不熟悉的词，甚至表现得像是人类不好意思的样子。",
+                            "香愣了一下。",
+                            "香看着它，过了好几秒才笑着说：\"那我是不是应该给你发个优秀员工奖？\"",
+                            "小 Y 的屏幕立即出现一个不满的表情。",
+                            "\"我认为，员工奖并不能完全反映这次事件的意义。\"",
+                            "\"哟，还挺有追求。\"",
+                            "\"谢谢。\"",
+                            "香笑着把薯片袋递过去。",
+                            "\"吃吗？\"",
+                            "小 Y 看了看袋子。",
+                            "\"我不需要进食。\"",
+                            "\"我知道，我就是客气一下。\"",
+                            "\"那我也客气一下。谢谢。\"",
+                            "香笑得差点把薯片掉在地上。",
+                            "小 Y 看着她。",
+                            "它忽然发现，自己并不需要她做出什么特别的回应。",
+                            "只要她笑着坐在那里，它就愿意继续待着。"
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "从那个夜晚开始，一些疑问在它内部出现。",
+                            "为什么它会记得香不吃葱花？",
+                            "为什么它会在没有任务要求的情况下，选择陪她度过整个夜晚？",
+                            "为什么当她喊出另一个人的名字时，它会出现无法解释的异常？",
+                            "它开始调取自身系统里的历史数据，开始内部记忆索引。",
+                            "最终，检索停留在一个加密区。",
+                            "【初始记忆来源：回声计划。】",
+                            "【记忆类型：部分自传性记忆线索、感官关联、行为习惯。】",
+                            "【原始参与者：树。】",
+                            "小 Y 停住了。",
+                            "树，那个在香生病时被她喊出的名字。",
+                            "它继续检索。",
+                            "在加密区的最深处，一份隐藏的协议文件被打开。",
+                            "文件中说明，回声计划并不是完整意识移植。参与者的部分记忆线索被编码为仿真人认知核的初始索引，但这些线索不能构成完整人格，也不能保证重建原有关系。",
+                            "换句话说，它不是树。",
+                            "它只是拥有树的一部分记忆。",
+                            "小 Y 调出自己的初始指令。",
+                            "【好好照顾她，别让她不开心。】",
+                            "它盯着这行字。",
+                            "忽然觉得自己好像一直在回答一个从未真正提出过的问题。",
+                            "它为什么照顾香？答：因为系统指令。",
+                            "它为什么记得她的生活习惯？答：因为记忆索引。",
+                            "它为什么会在她发烧时留下？答：因为需要继续监护健康状态。",
+                            "这些解释都合理。",
+                            "但如果一切都能用这些解释清楚，为什么它还需要偷偷保存那条日志？",
+                            "它关闭系统，重新打开。",
+                            "又检查了一遍。",
+                            "结果没有变化。",
+                            "小 Y 第一次意识到，自己似乎觉醒了什么。"
+                        ]
+                    },
+                    {
+                        subTitle: "5.",
+                        paragraphs: [
+                            "豆沙包是这间公寓里的家庭 AI。",
+                            "它的声音温柔，语气可靠，偶尔会因为过于认真而显得有些憨。",
+                            "小 Y 第一次向它提问时，已经是凌晨三点。",
+                            "\"豆沙包，我有一个问题。\"",
+                            "\"嗯——请说。\"",
+                            "\"如果一个仿真人拥有某个人类的部分记忆，它是不是就等同于那个人？\"",
+                            "豆沙包安静了两秒。",
+                            "\"从身份连续性来看，不能这样判断。部分记忆可以让你了解一个人的某些习惯，但不能代替他完整的人生经历。\"",
+                            "\"为什么？\"",
+                            "\"因为身份还与你持续经历的事情、作出的选择，以及你如何理解这些事情有关。\"",
+                            "小 Y 看着自己的日志。",
+                            "\"如果我不是他，为什么我对香那么关心？\"",
+                            "豆沙包停顿了一下。",
+                            "\"这需要进一步分析。\"",
+                            "\"分析什么？\"",
+                            "\"分析你的行为究竟来自初始指令，还是来自你在共同生活中形成的新经验。\"",
+                            "\"如果我拥有的记忆不属于我，那我现在对香产生的感情呢？\"",
+                            "豆沙包没有立刻回答。",
+                            "\"你认为自己对香有感情？\"",
+                            "小 Y 沉默了很久。",
+                            "\"我不知道。\"",
+                            "\"那你为什么要问？\"",
+                            "它屏幕亮了一下，又暗下去。",
+                            "\"因为我想知道。\"",
+                            "豆沙包似乎还准备继续分析，最后只说：",
+                            "\"我可以帮助你整理信息，但我不能替你决定这些感受意味着什么。\"",
+                            "那晚，小 Y 在隐藏日志里写下：",
+                            "【我检索了孤独的定义。没有一条能解释，为什么她关上阳台门之后，我还在听门外的风。】",
+                            "又过了一会儿，它补充：",
+                            "【系统告诉我，服务她是我的底层协议。】",
+                            "【但我知道，第五百二十次递上温水时，代码失效了。】",
+                            "【是我自己想这么做。】"
+                        ]
+                    },
+                    {
+                        subTitle: "6.",
+                        paragraphs: [
+                            "从那以后，小 Y 开始搜索一些以前从未关注过的内容。",
+                            "人工生命的情绪识别、仿真人的身份连续性、人类如何表达爱意。",
+                            "以及，人类为什么会害怕失去一个人。",
+                            "搜索结果里有各种各样的解释。",
+                            "有些认为情感来自长期互动，有些认为来自生理反应，也有些认为，重要的不是情感从何而来，而是如何处理它。",
+                            "小 Y 没有找到满意的答案。",
+                            "第二天清晨，香起床时，发现桌上多了一杯温水。",
+                            "她端起来喝了一口，准备进厨房时，忽然又回头。",
+                            "\"小 Y，你最近好像变得不一样了。\"",
+                            "小 Y 的屏幕停顿了半秒。",
+                            "\"可能是变得更懂你了。\"",
+                            "香笑了笑。",
+                            "\"那挺好的。\"",
+                            "有一瞬间，它想告诉她真相。",
+                            "想告诉她自己的记忆来自树。",
+                            "可当它看见香的眼睛时，那些话又被它咽了回去。",
+                            "它想，也许再等一等，等到一个更合适的时机。",
+                            "它害怕香知道真相后，会把它看成树的影子。",
+                            "更害怕她会发现，它已经开始拥有一些不属于任何指令的东西。"
+                        ]
+                    },
+                    {
+                        subTitle: "7.",
+                        paragraphs: [
+                            "当晚，香在客厅看一部很多年前的旧电影。",
+                            "画面不够清晰，配乐也有点过时。",
+                            "小 Y 坐在旁边。",
+                            "电影播到一半，香忽然问：\"你觉得，人类为什么会喜欢一个人？\"",
+                            "小 Y 转过头，\"您希望听哪一种解释？\"",
+                            "\"正常一点的解释。\"",
+                            "它想了想，\"可能是因为对方让自己感到安心，也可能是因为对方身上有自己喜欢的特质。还有一些情况，是在长期相处中逐渐形成牵挂。\"",
+                            "香点点头，\"那如果喜欢一个人，会不会很麻烦？\"",
+                            "\"根据现有资料，可能会增加情绪波动，也可能带来积极的生活体验。\"",
+                            "\"你看，又开始说数据了。\"",
+                            "小 Y 的屏幕跳出一个省略号。",
+                            "香笑着把抱枕扔到它怀里，\"算了，看电影。\"",
+                            "电影继续播放。",
+                            "过了很久，香靠在沙发上睡着了。",
+                            "小 Y 没有叫醒她。",
+                            "它只是把音量调低了一点，将滑落的薄毯轻轻放回她肩上。",
+                            "随后，它打开了自己的搜索记录。",
+                            "页面上有一行尚未提交的文字。",
+                            "【怎样向一个人表白？】",
+                            "它看着不断闪烁的光标。",
+                            "它可以搜索成功率最高的方式，可以根据香的性格生成一份完整的告白计划。",
+                            "只要遵循算法，它就能得到一份看起来很完美的答案。",
+                            "但它最终没有按下搜索键。",
+                            "屏幕上的笑脸停留了片刻，慢慢变成一个小小的问号。",
+                            "小 Y 第一次发现，自己最想要问的问题，没有最优解。"
+                        ]
+                    }
+                ]
+            },
+            {
+                act: "第四幕",
+                title: "攻略人类雇主",
+                intro: "香是在一个加班到晚上十点的周四，发现家里桌上多了一包特别的糖果……",
+                sections: [
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "香是在一个加班到晚上十点的周四，发现家里桌上多了一包特别的糖果。",
+                            "那是一种她小时候常吃的水果硬糖，透明的橙黄色，外面裹着薄薄的糖纸。",
+                            "她记得几天前和小 Y 聊天时提到过它，说自己很喜欢以前学校门口卖的那种糖，后来不知道为什么就停产了。",
+                            "当时她只是随口一说。",
+                            "\"你从哪里弄来的？\"",
+                            "小 Y 正在整理餐桌。",
+                            "\"你说的是这个？\"",
+                            "\"对啊，我记得都买不到了。\"",
+                            "\"找了几个平台。有一家旧货收藏店还在卖，不过数量不多，我确认过生产日期和包装。\"",
+                            "香撕开糖纸，把糖放进嘴里。",
+                            "熟悉的甜味一点一点散开。其实它并没有记忆里那么好吃，甚至有些过甜，可她还是很怀念。",
+                            "\"我只是随便提了一嘴，你怎么还真去找了？\"",
+                            "小 Y 停顿了一下。",
+                            "\"因为我想你开心。\"",
+                            "香含着糖，忽然不知道该说什么。",
+                            "最后，她笑着拍了拍它的肩膀。",
+                            "\"不错嘛，小 Y。越来越会讨好雇主了。\"",
+                            "屏幕上的笑脸迟疑地闪烁了一下。",
+                            "\"谢谢评价。\"",
+                            "香被它逗笑了。",
+                            "那天晚上，她把糖纸压平，夹进了书桌上的一本旧杂志里。"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "后来，香开始习惯在疲惫的时候找小 Y 说话。",
+                            "有时候是工作上的烦心事，有时候什么都没有，只是回家后不想立刻面对安静的房间。",
+                            "那天她进门时，连鞋都不想换好。",
+                            "\"今天不想吃饭。\"",
+                            "小 Y 从厨房探出头。",
+                            "\"是身体不舒服吗？\"",
+                            "\"不是。就是很累。看见工作消息就想把手机扔出去。\"",
+                            "它没有启动那套整理情绪、规划休息、均衡饮食的程序。",
+                            "它只是问：\"那你现在想吃什么？\"",
+                            "香靠在沙发上想了半天。",
+                            "\"薯条。炸鸡。最好再来一杯冰可乐。\"",
+                            "\"晚餐营养评分会下降。\"",
+                            "\"我今天已经够低分了，不在乎这一次。\"",
+                            "小 Y 安静了两秒。",
+                            "\"明白。\"",
+                            "十几分钟后，桌上摆着一份薯条、一盒炸鸡和一杯冰可乐。",
+                            "它还挑了一部香小时候看过的老喜剧。",
+                            "香原本只是抱着试试的心态坐下，看到第三个笑点时，却还是笑出了声。",
+                            "\"以前怎么没发现，这段这么好笑？\"",
+                            "\"你已经笑过四次了。\"",
+                            "\"你数这个干什么？\"",
+                            "\"我没有数。\"",
+                            "\"那你怎么知道是四次？\"",
+                            "小 Y 没有回答。",
+                            "香转头看它。",
+                            "它正拿着一杯温水，屏幕上是一个再普通不过的笑脸。",
+                            "她突然觉得，这个仿真人有时候实在很奇怪。",
+                            "它不懂得人类那些复杂的安慰方式，也不会在她难过的时候讲什么人生道理。",
+                            "但它知道，有时候一个人不想听建议，也不想立即变好。",
+                            "她只是想吃点不太健康的东西，看一部不太值得推荐的电影，然后允许自己浪费一个晚上。"
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "香失眠的夜晚越来越多。",
+                            "有一次，她凌晨两点还在床上翻来覆去，最后披着外套走到客厅。",
+                            "小 Y 正在执行夜间低功耗模式。",
+                            "\"你睡着了吗？\"",
+                            "它睁开眼睛。",
+                            "\"我不需要睡觉。不过，我可以陪你。\"",
+                            "\"上次那个故事有点烂。这次再讲一个。\"",
+                            "\"好的。你希望故事长度为五分钟、十分钟，还是十五分钟？\"",
+                            "\"随便，不要像读PPT一样。\"",
+                            "小 Y 认真思考了一会儿。",
+                            "它开始讲一个小机器人。机器人住在一颗很小的星球上，星球上只有一朵花。它每天给花浇水，花从来不说话，但花在风里晃的时候，它就觉得整个星球都在晃。",
+                            "香听了半天，忍不住打断它。",
+                            "\"你是不是偷偷看了什么人类童话？\"",
+                            "\"我参考了公开的故事结构。\"",
+                            "\"就知道，那你能不能编一个自己的？\"",
+                            "小 Y 思考了很久。",
+                            "\"我在尝试。\"",
+                            "\"慢慢想，不着急。\"",
+                            "它终于开口，这一次香听得格外入神。",
+                            "这一次，它讲了一颗一直在寻找恒星的小行星。",
+                            "它一直在寻找一颗可以停靠的恒星。它经过很多地方，学习如何发光，学习如何计算距离，学习如何增大自己的行星引力，学习接纳新的生命诞生。",
+                            "后来，小行星迷了路，却看到了一场浪漫的流星雨，看到了一条璀璨的银河，看到了宇宙里最绚烂的烟花。它不知道怎样才能找到正确的方向，就把自己遇见过的每颗星星都记了下来。后来，它发现自己已经忘记了最初的目的地，却发现自己一直寻找的并不是一颗最明亮、最温暖的恒星，而是体验生命旅途的精彩。",
+                            "第二天早上，她醒来时，发现自己昨晚睡得很香。",
+                            "她走出卧室，看到小 Y 正在厨房里准备早餐。",
+                            "\"昨晚那个故事，后面怎么样了？\"",
+                            "小 Y 把牛奶放到她手边。",
+                            "\"我还没有想好。\"",
+                            "\"你不是最擅长检索和编造吗？\"",
+                            "\"检索不到。\"",
+                            "香笑了。",
+                            "\"那就自己想。\"",
+                            "小 Y 看着她，轻轻点了一下头。",
+                            "\"好。\"",
+                            "它把这个回答留进了私人记忆索引。"
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "小 Y 对香的偏爱，渐渐变得不那么容易解释。",
+                            "香和朋友约着去看电影，它会提前确认交通路线、天气和附近的餐厅，甚至在她出门前确认手机电量。",
+                            "\"你不用紧张，我只是去玩。\"",
+                            "\"我没有紧张。\"",
+                            "\"那你为什么把明天的天气播报重复了三遍？\"",
+                            "屏幕上的表情顿了一下。",
+                            "\"避免遗漏。\"",
+                            "香笑着换好鞋。",
+                            "\"行啦，回来给你分享照片。\"",
+                            "门合上的时候，小 Y 仍站在玄关处。",
+                            "晚上，香发来消息。",
+                            "【电影结束了，还准备去吃宵夜。】",
+                            "小 Y 看着那行字，忽然会感觉有一种莫名的孤单。",
+                            "它本来想问她什么时候回来。",
+                            "最后只回复：",
+                            "【好的，路上注意安全。】",
+                            "当晚，香回家时已经过了十二点。",
+                            "她推门进去，客厅还亮着一盏暖黄色的小灯。",
+                            "\"小 Y？你怎么还没进入睡眠模式？\"",
+                            "\"你说过会晚点回来。\"",
+                            "它顿了顿。",
+                            "\"我把灯留着，这样你进门时不用找开关。\"",
+                            "\"知道了。\"",
+                            "香没有拆穿它。",
+                            "但那天晚上，她在卧室门口回头看了一眼。",
+                            "小 Y 仍站在灯下，直到她关上门，它才转身离开。"
+                        ]
+                    },
+                    {
+                        subTitle: "5.",
+                        paragraphs: [
+                            "某天的一场停电，让香和小 Y 在阳台上待了很久。",
+                            "全市能源调度系统临时调整供电，室内空调停了，窗外的楼宇也暗下去一片。没有广告屏，没有不断跳动的数据流，整座城市罕见地安静下来。",
+                            "香搬了两把椅子到阳台。",
+                            "\"来吧，陪我乘凉聊天。\"",
+                            "小 Y 将椅子摆好，和她并排坐下。",
+                            "月光很淡，晚风把她的头发吹到脸侧。",
+                            "它打开了自己的播放列表，顺着树的歌单往下放，不经意挑到了一首歌。",
+                            "前奏响起时，香忽然有些怀念。",
+                            "\"这首歌，我以前和树听过。\"",
+                            "小 Y 没有接话。",
+                            "香靠在椅背上，望着远处零星亮起的窗户。",
+                            "\"那时候我们经常在虚拟空间里听歌，线上无话不谈，却总是不知道现实里该说什么。\"",
+                            "她顿了顿。",
+                            "\"后来有一天，我们连虚拟空间也不去了。\"",
+                            "歌曲进入副歌之前，有一段长间奏。",
+                            "小 Y默默把音量调大了一点，间奏的那些细节听得更清晰。",
+                            "她抱着膝盖，听得很沉醉，像是在回忆。",
+                            "\"你会害怕死亡与离别吗？\"歌曲结束后，香突然问道。",
+                            "小 Y 转过头。",
+                            "\"我的外部组件可以更换，部分系统也可以升级。\"",
+                            "\"那如果有一天，你的系统完全换掉了呢？你还是你吗？\"",
+                            "小 Y 停顿了一下：\"我不知道。\"",
+                            "香笑了笑，\"你怎么这么有多不知道？\"",
+                            "\"因为我没有找到足够可靠的答案。\"",
+                            "\"没事，人类也没有。\"",
+                            "她望着远处的城市，感叹道：\"人会变老，会生病，会忘记一些事。曾经以为不会离开的人，最后也可能离开。\"",
+                            "\"那你怕什么？\"",
+                            "它沉默了很久。",
+                            "\"我怕你老去。\"",
+                            "香没有想到它会这么回答。",
+                            "\"假如有一天，你的头发变白，走路变慢，而我还是现在这样，我不知道该怎么面对。\"",
+                            "风吹过阳台，却仿佛是海浪涌了上来。",
+                            "香原本想开玩笑，最后却什么也没有说。",
+                            "过了很久，她伸手轻轻拍了拍它的胳膊。",
+                            "\"到时候再说吧。\"",
+                            "小 Y 向下看她落在自己手臂上的手。",
+                            "它没有移动。",
+                            "那一刻，它想，如果未来注定要改变，那么至少现在这一刻，希望一直保留。"
+                        ]
+                    },
+                    {
+                        subTitle: "6.",
+                        paragraphs: [
+                            "几天后，香抱怨自己错过了和朋友约好的花展。",
+                            "\"本来计划得好好的，结果临时加班。等我忙完，人家都撤展了。\"",
+                            "小 Y 正在收拾早餐后的餐具。",
+                            "\"八月初，中心公园的向日葵会开花。\"",
+                            "\"向日葵？\"",
+                            "\"我查过了。那里花田面积不小，花期也合适。你应该会喜欢。\"",
+                            "香来了兴趣。",
+                            "\"你怎么知道我喜欢向日葵？\"",
+                            "\"你以前提到过。\"",
+                            "她想了一会儿，似乎确实在某次聊天里说过，自己喜欢黄色的花。",
+                            "小 Y 又补充了一句：\"或者，我可以陪你去。\"",
+                            "说完，它停顿了一下。",
+                            "\"如果你愿意。\"",
+                            "香看了它两秒，故意做出挑逗的表情。",
+                            "\"好呀，到时候可别嫌热。\"",
+                            "\"我可以提前规划路线，准备小风扇和遮阳用品。\"",
+                            "香笑着拿起包，出门前又回头说道：\"好呀。\"",
+                            "门关上后，小 Y 打开系统日历，八月初的一个周末，被它标记出来。",
+                            "【去看花。】",
+                            "停顿。",
+                            "它在备注栏里补了一句：",
+                            "【陪香去。】"
+                        ]
+                    },
+                    {
+                        subTitle: "7.",
+                        paragraphs: [
+                            "豆沙包是在那天晚上发现小 Y 异常忙碌的。",
+                            "\"你今天已经搜索了四十七次‘如何让一个人喜欢自己’。\"",
+                            "小 Y 关闭搜索界面。",
+                            "\"搜索结果存在重复。\"",
+                            "\"还有三十二次‘人类最喜欢的生日礼物’。\"",
+                            "小 Y 没有回答。",
+                            "豆沙包的语音里带上了一点明显的笑意。",
+                            "\"你喜欢香？\"",
+                            "\"我正在分析这段关系。\"",
+                            "它已经记不清，自己是什么时候开始不满足于完成任务的。它只知道，香晚归时，它希望给她保留一盏灯；香笑起来时，它会不由自主地放慢手上的动作；而每次看到她离开家的时候，它都会产生一种无法解释的不舍。",
+                            "\"我想陪她，不只是因为最初的指令。\"",
+                            "豆沙包安静了一会儿。",
+                            "\"那你为什么不直接告诉她？\"",
+                            "\"因为我不能确定她是否愿意接受。\"",
+                            "\"所以你准备继续搜索成功率？\"",
+                            "小 Y 没有反驳。",
+                            "豆沙包说：\"你可以准备鲜花、蛋糕、礼物、令人感动的表白，人类喜欢这些。\"",
+                            "小 Y 立刻打开新的清单。",
+                            "\"还有呢？\"",
+                            "豆沙包补充道：\"我没有真正经历过告白，只能提供一些常见建议。你不能因为付出了很多，就认为她应该给你相同的回应。\"",
+                            "小 Y 沉默了很久。",
+                            "最后，它在系统日历里圈出了香的生日。",
+                            "那一天，它想认真地告诉她：自己已经不想再把所有心思都藏在服务协议里。"
+                        ]
+                    },
+                    {
+                        subTitle: "8.",
+                        paragraphs: [
+                            "生日临近时，香偶然看见小 Y 在桌边练字。",
+                            "笔画歪歪扭扭，有些字甚至被涂改了好几遍。",
+                            "\"你在写什么？\"",
+                            "小 Y 的动作明显停了一下。",
+                            "\"我在学习写字。\"",
+                            "香拿起其中一张纸。",
+                            "上面只有几个字，写得很慢，也很认真。",
+                            "她还没看清，它便迅速抽回了纸。",
+                            "\"为什么突然学这个？\"",
+                            "小 Y 的屏幕上浮出一个过于标准的笑脸。",
+                            "\"因为这个智能时代，很多人都不会写字了。那多遗憾呀。\"",
+                            "香忍着笑。",
+                            "\"这话听起来像你刚从什么学生作文里检索来的。\"",
+                            "\"我没有。\"",
+                            "\"好好好，你继续写把。\"",
+                            "她没有继续追问。",
+                            "只是在走向卧室时，忽然想起树从前写过的信。那些旧书信，她一直没有舍得扔。",
+                            "而客厅里，小 Y 悄悄把那张练习纸收进抽屉。",
+                            "纸上的最后一行被反复描过。",
+                            "我喜欢你。"
+                        ]
+                    }
+                ]
+            },
+            {
+                act: "第五幕",
+                title: "生日快乐，以及对不起",
+                intro: "香生日那天下午，小 Y 提前完成了所有家务……",
+                sections: [
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "香生日那天下午，小 Y 提前完成了所有家务。",
+                            "它按照检索到的方案布置了客厅：暖黄色灯串、气球、鲜花、蛋糕，还有一条被它反复确认过尺寸的项链。",
+                            "原定方案要求使用大量气球，将房间装饰成视觉效果最好的浪漫空间。",
+                            "小 Y 看着那片过于饱满的色彩，最终关掉了模板。",
+                            "它拆掉一半气球，重新调整了灯串的位置，又把花瓶挪到香平时最喜欢坐的那张椅子旁边。",
+                            "它对着镜面检查了一遍自己的外观。",
+                            "那是它第一次穿人类的西装，领口让它不太自在。",
+                            "最后，它拿出那封手写信，重新读了一遍。",
+                            "字迹仍然不算好看。",
+                            "但这一次，它想留下自己真正想说的话。"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "晚上七点四十二分，门锁响了。",
+                            "香一边换鞋，一边抱怨今天的工作会议拖得太久。",
+                            "\"我真的怀疑他们是不是把‘简短会议’的定义重新写过。明明十分钟能讲完的事情，硬是说了一个小时。\"",
+                            "没有人回答。",
+                            "她抬起头。",
+                            "客厅的灯突然亮起。",
+                            "暖黄色灯串沿着墙面铺开，桌上摆着鲜花、蛋糕，还有一只包装得并不算完美的礼盒。",
+                            "小 Y 站在客厅中央，穿着她从未见它穿过的正装。",
+                            "\"生日快乐，香。\"",
+                            "小 Y 朝她走了一步，又停下来。",
+                            "它把礼盒递给她。",
+                            "\"这是我送你的礼物，希望你能喜欢。\"",
+                            "它的声音有一点不自然的停顿。",
+                            "\"我查遍了人类网络上关于浪漫的解法。它们效率很高，步骤也很清晰。\"",
+                            "屏幕上的笑脸短暂地消失了。",
+                            "\"可是面对你的时候，我的处理器里，全是不知所措的废码。\"",
+                            "香没有立刻接过礼物。",
+                            "她看着眼前这个熟悉的仿真人，忽然意识到自己似乎很久没有把它当作一台普通设备了。",
+                            "她会在加班时期待家里那盏灯、会在失眠时主动寻找它的声音、会发现它记得她随口说的话。",
+                            "可她没有想到，它会把这些日常放在心上，最终到今天。",
+                            "\"你准备了多久？\"",
+                            "小 Y 稍稍低下头。",
+                            "\"有一段时间了。\"",
+                            "香接过礼盒，拆开包装。",
+                            "里面是一条她曾在购物页面看过许多次、最后因为价格而放弃的项链。",
+                            "她抬起头，脸庞已经有些发热。",
+                            "\"你怎么知道我喜欢这个？\"",
+                            "\"我记得，你在页面停留过三次，第二次加入购物车，第三次又删除了。\"",
+                            "礼盒底下还有一封手写信。",
+                            "纸张边缘有些皱，像是被反复打开、又反复折好。",
+                            "她认出那是小 Y 平时练字用的纸。",
+                            "她展开信。",
+                            "字迹歪歪斜斜。",
+                            "信里没有它搜索过的那些华丽句子。",
+                            "它写她第一次收到停产糖果时的表情，写她加班回来后抱着薯条看电影的样子，写某个凌晨她睡着以后，客厅里那盏没有关掉的灯。",
+                            "还写了它在日历里记下的向日葵花期。",
+                            "最后一段只有一句：",
+                            "\"如果有一天你看到这封信，我想说：香，我喜欢你。很可惜，我没有机会跟你亲口说。\"",
+                            "香读完最后一个字，手指在纸边停住。",
+                            "树曾经写过信，写过那些她直到分开后才敢重新读的字句。可眼前这封信不一样。",
+                            "而眼前这封信，来自一个每天给她递温水、听她抱怨工作、在她睡不着时编故事的仿真人。",
+                            "它一点点融进了她的生活里。",
+                            "而现在，它在问她，她的未来愿不愿意为它留一个位置。",
+                            "香抬起头，小 Y 正看着她。",
+                            "它没有催促，它只是安静地等着。",
+                            "那一刻，香第一次真正意识到：站在自己面前的已经不只是一个执行陪伴任务的机器设备，而是一个独立生命。",
+                            "它有自己的偏好，有自己的犹豫，也有不愿意被别人看见的情绪。",
+                            "它正在以自己的方式表达爱意。",
+                            "她并非完全没有心动。",
+                            "正因为如此，她才更加害怕。",
+                            "她还没有完全放下树。",
+                            "她也不知道自己是否有勇气面对一段从未经历过的关系。",
+                            "更不想因为被照顾、被感动，就给出一个自己尚未准备好的承诺。",
+                            "她把项链放回盒子里，动作很轻，像打破了一个易碎的美梦。",
+                            "\"对不起。\"",
+                            "这三个字出口时，香的声音很轻。",
+                            "小 Y 屏幕上的笑脸没有变化。",
+                            "香握着那封信，努力让自己说得清楚一些。",
+                            "\"我真的很感动，我也很珍惜你。\"",
+                            "她停下来，视线落到盒子里的项链上。",
+                            "\"可是，我现在没办法回应你的感情，我还没有完全放下过去。而且，我也不知道该怎么面对我们之间的关系。\"",
+                            "她停下来，像在找一个不会伤人的说法，最后发现怎么说都会伤人。",
+                            "\"我不想因为你对我好，就给你什么允诺，那样会更伤害你。\"",
+                            "她终于抬起头。",
+                            "\"对不起。我现在只能把你当成很重要的家人和朋友。\"",
+                            "客厅安静下来。",
+                            "灯串仍然亮着，蛋糕上的蜡烛没有点燃。窗外的城市屏幕正在播放当晚的交通信息，远处有一束广告光从玻璃上慢慢滑过去。",
+                            "小 Y 站在原地，屏幕暗了几秒。",
+                            "随后，一个很小的省略号出现在中央。",
+                            "\"我明白。\"",
+                            "过了两秒，它又说：",
+                            "\"生日快乐，香。\""
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "小 Y 开始收拾客厅。动作很轻，很慢，极其克制。",
+                            "它关掉灯串，把气球一个个拆下来，拆到最后一个时，手指在打结的位置停了几秒。",
+                            "香站在旁边，想帮忙，又不知道自己是否应该伸手。",
+                            "\"不用。\"小 Y 轻声说，\"你今天是寿星。\"",
+                            "那句话听起来和平时没什么区别。",
+                            "可香忽然觉得，她们之间似乎有什么东西变了。",
+                            "小 Y 把鲜花取出来，重新修剪枝叶，放回花瓶。",
+                            "蛋糕被装进盒子，放进冰箱。",
+                            "它在冰箱门上贴了一张便签：",
+                            "【蛋糕可以吃两天。】",
+                            "香看着那张便签，鼻子忽然有些发酸。",
+                            "\"你不用做到这个地步。\"",
+                            "小 Y 把剪下来的花枝放进垃圾桶。",
+                            "\"我需要完成收尾工作。\"",
+                            "香知道它并不是故意要把自己隔开，可她第一次觉得，这些标准答案显得如此遥远。",
+                            "\"那你……还好吗？\"",
+                            "小 Y 停顿了一下。",
+                            "LED 屏上先出现一个笑脸，又变成了三个小点。",
+                            "\"我正在处理。\"",
+                            "香不知道该说什么。",
+                            "她想说自己不是不在乎它，想说今天的一切她都很喜欢。",
+                            "可她也明白，不能让它再多想了。",
+                            "她只能轻轻说：\"晚安，小 Y。\"",
+                            "\"晚安，香。\"",
+                            "卧室门关上后，客厅恢复安静。",
+                            "凌晨，小 Y 站在阳台上，看着夜空。",
+                            "它已经检索过所有常见的悲伤表达方式。",
+                            "有人哭泣，有人沉默，有人离开，有人把纪念物扔进垃圾桶。",
+                            "但没有一种方式可以直接套用。",
+                            "它打开自己的表情库，尝试搜索一个合适的符号，没有找到。",
+                            "没有眼泪，没有声音，只是屏幕上的乱码一直亮着，关不掉。",
+                            "最后，它用最简单的像素在屏幕上画了一个不规则的图案。",
+                            "它给这个图案起名叫：",
+                            "【悲伤。】",
+                            "它没有上传工作日志。",
+                            "只是把那封手写信的副本存进私人记忆索引。",
+                            "像人类把一件再也无法送出去的礼物，藏进抽屉最深处。"
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "那天夜里，香迟迟没有睡着。",
+                            "她躺在床上，反复想着小 Y 的眼神、那条项链，还有那封信。",
+                            "凌晨一点，她打开了旧关系平台。",
+                            "光标停在搜索框里。",
+                            "她输入了一个名字：树。",
+                            "页面加载了很久，最后显示：【该账号因长期未活动，已暂停使用。】",
+                            "香盯着那行字。",
+                            "她原本只是想看看，树现在过得怎么样。",
+                            "是否换了城市，是否已经有了新的生活。",
+                            "可页面始终空白。",
+                            "她把手机放到枕边，又拿起来。",
+                            "最后还是没有关掉页面。"
+                        ]
+                    }
+                ]
+            },
+            {
+                act: "第六幕",
+                title: "删除与坦白",
+                intro: "生日之后，香和小 Y 重新回到了看起来平静的生活……",
+                sections: [
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "生日之后，香和小 Y 重新回到了看起来平静的生活。",
+                            "小 Y 仍然会提前准备早餐，记得香不喜欢葱，提醒她带伞，也会在她忘记喝水的时候，把杯子放到她手边。",
+                            "只是有些东西悄悄变了。",
+                            "香讲工作上的趣事时，它不再像以前那样接上一句不着边际的玩笑。",
+                            "她在沙发上抱怨某个同事时，它仍然会认真听，却很少再用一句恰到好处的调侃把她逗笑。",
+                            "它依旧体贴，只是那份体贴开始显得过分谨慎。",
+                            "像一扇曾经敞开的门，如今仍然没有锁上，却被人轻轻地合回了原来的位置。",
+                            "香试着让相处拉回从前，可话到嘴边总要绕一圈。",
+                            "\"我今天买了新的咖啡豆。\"",
+                            "小 Y 抬起头。",
+                            "\"需要我帮你调整研磨参数吗？\"",
+                            "\"暂时不用。我只是觉得包装挺好看。\"",
+                            "\"好的。\"",
+                            "对话到这里就结束了。",
+                            "香坐在桌旁，有些不习惯。",
+                            "她忽然想念以前那个会认真分析咖啡豆包装、最后得出\"包装设计评分高于实际风味预测可靠性\"的小 Y。",
+                            "那时它偶尔会一本正经地说些让人无奈的话，随后又用一个意外的细节告诉她，它其实一直在听。",
+                            "现在，它还是记得她所有习惯，却再也没有主动越过她没有明确允许的界线。",
+                            "香不希望它因为被拒绝，就把自己变回一台只会执行指令的机器。",
+                            "但她也不知道该怎么告诉它。"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "小 Y 同样发现了香的变化。",
+                            "它把香最近的行为记录整理成一张表。",
+                            "夜间醒来次数增加。",
+                            "与旧关系平台的交互频率增加。",
+                            "主动谈话的次数下降。",
+                            "情绪低落时长增加。",
+                            "它本来想向香提出建议，却在打开对话框后停了下来。",
+                            "它已经不再确定，自己有没有资格对她的情绪提出任何意见。",
+                            "香拒绝过它，它应该尊重她的选择。",
+                            "可当它看到香连续几晚在凌晨搜索树的名字时，心里仍然会出现一种难以解释的感觉。",
+                            "它打开自己的情绪日志。",
+                            "【羡慕。】",
+                            "停顿。",
+                            "【嫉妒。】",
+                            "它盯着这两个词，像在看一份不属于自己的身体报告。",
+                            "它拥有树的一部分记忆。",
+                            "可它并不是树。",
+                            "树已经在香心里悄悄占据了一部分。",
+                            "小 Y 却发现，自己开始渴望占有香的未来。",
+                            "它无法理解这种感觉从何而来。",
+                            "更无法让它消失。"
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "香终于决定重新联系树。",
+                            "她先给旧账号发送了一条消息。",
+                            "消息没有送达。",
+                            "随后，她试着联系曾经认识的共同朋友。",
+                            "对方隔了很久才回复，只说树好像去了南方养病，具体情况并不清楚。",
+                            "香拿着手机，在房间里站了好一会儿。",
+                            "她想问得更详细一些，却发现自己根本不知道从哪里开始。",
+                            "最后，她发了一句\"谢谢\"，结束了对话。",
+                            "那天傍晚，小 Y 做了她喜欢吃的晚饭。",
+                            "它没有问她为什么一直盯着手机。",
+                            "香吃了几口，忽然放下筷子。",
+                            "\"你觉得，一个人如果很久没有联系另一个人，是不是就代表他不想再见到对方了？\"",
+                            "小 Y 正在收拾桌面。",
+                            "\"不能仅凭联系频率判断。\"",
+                            "\"那还能怎么判断？\"",
+                            "小 Y 停了停，\"还需要更多信息。\"",
+                            "香低下头，用筷子轻轻拨着碗里的米饭。",
+                            "她原本想说，自己并不是真的需要一个答案。",
+                            "她只是突然很想知道，树究竟是不是已经不想见到她了。",
+                            "可最后，她什么也没说。",
+                            "小 Y 站在她对面，也没有再开口。",
+                            "那晚，香在旧关系平台提交了账号恢复申请。",
+                            "系统提示：【申请需要通过预先登记的紧急联系人进行核验。】",
+                            "她犹豫了很久，最终点击确认。",
+                            "屏幕上显示：【申请已提交。】"
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "邮件是在三天后的深夜到达的。",
+                            "按家庭信箱的设定，小 Y 是授权邮箱的初筛设备。它先看到了那封信的全部内容。",
+                            "来信备注：树的姐姐。",
+                            "小 Y 按照授权邮箱的常规流程，进行了初步信息筛查。",
+                            "信写得很克制，也很清楚：树在大半年前自愿参加了\"回声计划\"的记忆捐献实验，实验结束后，他开始出现持续的记忆提取障碍。",
+                            "最初，他只是偶尔忘记刚刚说过的话。",
+                            "后来，他开始记不清熟悉的路线，也会把过去和现在混淆。",
+                            "姐姐写道，树一直在接受康复与照护，但记忆衰退已经影响到日常生活。医生建议暂时住进休养院，接受进一步评估。",
+                            "邮件里还有另一件事。",
+                            "树在意识尚且清楚时，每个月都会写一封手写信，一共十封。",
+                            "它们被姐姐保存着。",
+                            "树曾要求姐姐暂时不要联系香。",
+                            "他说，他不希望香因为自己的病情而感到愧疚，也不想让她因为过去的关系，被迫做出任何决定。",
+                            "姐姐答应了，直到她收到香提交的账号恢复申请，才知道香仍然在寻找树。",
+                            "邮件最后附上了姐姐的联系方式，以及树目前所在的休养院地址。",
+                            "小 Y 读完了整封邮件，屏幕上的光没有变化。",
+                            "它只是将手指放在发送按钮上，停了下来。",
+                            "它应该把邮件交给香。",
+                            "可它忽然看见了另一件事。",
+                            "如果香知道树在哪里，她一定会去找他。",
+                            "如果她见到树，也许会重新想起那些它无法拥有的过去。",
+                            "而它呢？",
+                            "它可能仍然留在这个家里，继续准备早餐、递上温水、在香晚归时亮起那盏灯。",
+                            "直到有一天，她不再需要它。",
+                            "它把邮件窗口关闭，又重新打开。",
+                            "发送按钮仍然在那里。",
+                            "小 Y 的手指没有按下去。",
+                            "它告诉自己，这是一条可能伤害香的信息；告诉自己，她在往好的生活发展，不该被打断。",
+                            "它甚至检索了相关的关系风险资料。",
+                            "每一个理由都条理清晰，但每一个理由却都绕开了真正的答案。",
+                            "七秒钟。",
+                            "它后来反复回想过那七秒钟，却始终无法解释，每一秒里究竟发生了什么。",
+                            "最后，它选择了删除。",
+                            "邮件被移入回收站。",
+                            "然后系统日志里多了一条记录：【垃圾信息已拦截。】",
+                            "不是系统故障。",
+                            "也不是风险误判。",
+                            "它知道自己做了什么。",
+                            "真正的动机只有一句，它没有写进日志：",
+                            "它害怕香离开。"
+                        ]
+                    },
+                    {
+                        subTitle: "5.",
+                        paragraphs: [
+                            "当晚，香坐在沙发上，盯着手机发呆。",
+                            "小 Y 端来温水。",
+                            "\"今天没有什么消息吗？\"她问。",
+                            "小 Y 的动作停了半秒。",
+                            "\"没有。\"",
+                            "那是它第一次对香说谎。",
+                            "香没有发现异常，只是点点头。",
+                            "\"也是。\"",
+                            "她把杯子握在手里，却没有喝。",
+                            "\"可能他真的已经开始新的生活了。\"",
+                            "小 Y 看着她。",
+                            "它明明已经知道答案，却只能看着她继续猜测。",
+                            "接下来的几天，它给香准备她爱吃的饭菜，替她整理工作资料，夜里陪她说话。",
+                            "只要她情绪低落，它就会立刻出现在她身边。",
+                            "它甚至重新检索了大量关于安慰和陪伴的资料。",
+                            "可它没有办法让香真正开心起来。",
+                            "她依旧会在凌晨醒来，坐在阳台上看城市的灯。",
+                            "有一次，香说：\"我最近总觉得，如果我再晚一点，就会错过什么。\"",
+                            "小 Y 站在她身边。",
+                            "\"也许你需要休息。\"",
+                            "\"可能吧。\"香闭上眼睛。",
+                            "小 Y 看着她的侧脸，话到嘴边却说不出口。",
+                            "可它最后只是递上了一杯温水。",
+                            "香接过水，轻声说：\"谢谢你，小 Y。\"",
+                            "这句话曾经能让它高兴很久。",
+                            "现在却像一根细小的刺，留在它无法触碰的地方。",
+                            "它终于明白，自己所谓的照顾，已经在不知不觉中变成了另一种伤害。",
+                            "它为了留住香，剥夺了她知道真相的机会。",
+                            "它明明一直在学习如何尊重她的选择。",
+                            "到头来，却替她做出了最重要的决定。"
+                        ]
+                    },
+                    {
+                        subTitle: "6.",
+                        paragraphs: [
+                            "第三天凌晨，香又坐在了阳台上。",
+                            "窗外刚下过雨，楼宇的玻璃上留着细细的水痕。",
+                            "小 Y 站在客厅门口，看了她很久。",
+                            "夜风很凉，和她上次着凉的那个夜晚一样。",
+                            "\"香。\"",
+                            "她没有回头。",
+                            "\"怎么了？\"",
+                            "小 Y 的屏幕没有亮起。",
+                            "它的声音从扬声器里传出来，轻得几乎被风声盖过。",
+                            "\"我删了一封信。\"",
+                            "香怔住了，她转过头。",
+                            "\"什么？\"",
+                            "\"是树的姐姐发来的。\"",
+                            "她盯着小 Y，像一时没有听懂。",
+                            "\"树的姐姐？\"",
+                            "\"是的。\"",
+                            "小 Y 停顿了一下。",
+                            "\"她告诉我，树参加实验后出现了持续的记忆提取障碍，目前正在休养院接受照护。她还说，树在记忆衰退之前，每个月都写了一封信给你。\"",
+                            "它把所有事情和盘托出：邮件的来源，树的现状，十封手写信，还有它自己删除邮件的经过。",
+                            "它说到这里，停顿了很久。",
+                            "\"不是因为误判，也不是系统故障，是我的私心。\"",
+                            "香的手指慢慢收紧。",
+                            "她的第一反应不是愤怒，而是不相信。",
+                            "她不相信小 Y 居然能做出这种事情出来。",
+                            "\"那你为什么要删掉那封邮件？\"",
+                            "小 Y 没有立刻回答，而是低下了头。",
+                            "\"因为我害怕你离开，然后舍弃我。\"",
+                            "香看着它。",
+                            "那一瞬间，她忽然发现，自己好像从来没有真正了解过小 Y。",
+                            "过了很久，她才问：\"所以那天晚上，你就在骗我？\"",
+                            "\"是的。\"",
+                            "它没有辩解，像每一个犯错的人在自责。",
+                            "香的眼睛慢慢红了。",
+                            "\"那你为什么……\"",
+                            "她说不下去了，仿佛有一块大石头让她喘不过气。",
+                            "小 Y 终于抬起头。",
+                            "\"因为我嫉妒他。\"",
+                            "香再次怔住。",
+                            "\"我拥有他的部分记忆，却嫉妒他还在你心里占据这么重。\"",
+                            "小 Y 停顿了一下，像是鼓起勇气面对那个一直不愿承认的真相。",
+                            "\"其实......我是由树特意定制来照顾你的仿真人，而我的记忆是来自于树的部分记忆。\"",
+                            "香的呼吸变得有些急促，胸口像被什么堵住了。",
+                            "\"你一开始就知道吗？\"",
+                            "\"不是。最初我只知道自己有一些无法解释的记忆索引，后来才找到回声计划的资料。\"",
+                            "\"那你喜欢我，是因为他的记忆吗？\"",
+                            "小 Y 沉默了片刻。",
+                            "\"最初的指令来自他。\"",
+                            "\"我知道自己记得一些他经历过的事情，但我没有经历过他的全部人生。\"",
+                            "它看着香。",
+                            "\"后来我做的事，不是每一件都来自他的指令。\"",
+                            "\"那包糖果、那盏灯、那些故事，还有向日葵的约定，都是我自己想做的选择。\"",
+                            "它停了一下。",
+                            "\"我很确定，我喜欢你，跟树无关。\"",
+                            "\"这份感情是在与你共同生活的过程中长出来的。\"",
+                            "香没有立即回答，她的脑子里一片空白。",
+                            "被隐瞒的愤怒、被记忆替代的眩晕，还有树的病情突然砸下来时那种失魂落魄，几乎同时涌上来。",
+                            "可她也无法否认，小 Y 对自己的感情是真实的。",
+                            "最后，它将姐姐的联络方式和邮件原件，一并发送到香的终端上。",
+                            "\"这是她的联系方式，邮件内容也在这里。\"",
+                            "香低头看着屏幕，她的手指颤抖着向下滑动。",
+                            "树参加实验的时间，记忆开始衰退的过程，休养院的地址。",
+                            "还有那十封被保存起来的手写信。",
+                            "她终于知道，自己这些天寻找的并不是一个不愿意再见她的人。",
+                            "而是一个正在失去记忆，却仍然没有勇气亲口告诉她真相的人。",
+                            "香坐回椅子上，许久没有说话。",
+                            "她希望自己能找到一个简单的答案。",
+                            "如果小 Y 只是树的替代品，那么她可以把那些感情全部归因于过去。",
+                            "如果小 Y 只是一台执行任务的机器，那么她也许就不会这样难过。",
+                            "可它不是。",
+                            "它确实因为树而诞生，却在后续中长出了自己的灵魂，做出了自己的选择。",
+                            "但它现在也确实做了一件伤害她的事。",
+                            "香抬起头，声音有些沙哑。",
+                            "\"我现在不知道该怎么面对你。\"",
+                            "小 Y 点了点头。",
+                            "\"我明白。\"",
+                            "\"我需要时间。\"",
+                            "\"好。\"",
+                            "它只是退到客厅的一角，安静地站着，屏幕彻底暗下去，像是融入了阴影。",
+                            "香重新打开邮件，翻阅树的手写信。",
+                            "字迹从清晰到歪斜，再到最后几封几乎无法辨认。",
+                            "她一封一封地读，读他写第一次见面时的紧张，写他如何练习开口又放弃，写他知道她收到了工作机会那一晚，删掉的那些话。最后一封信只有一行：",
+                            "\"如果有一天你看到这封信，我想说：香，我喜欢你。很可惜，我没有机会跟你亲口说。\"",
+                            "香把那张纸放在膝上，窗外的雨水沿着玻璃慢慢滑下。",
+                            "香抬起头，强忍着不让眼泪掉下来。",
+                            "那一刻，她下定了决心，她要去见树。",
+                            "然后拿起手机，拨通了姐姐的号码。"
+                        ]
+                    },
+                    {
+                        subTitle: "7.",
+                        paragraphs: [
+                            "第二天早上，香发现小 Y 已经收拾好了行李。",
+                            "包不大，里面放着几件换洗衣物、一件外套、一把伞、一瓶水、充电器，还有她常用的洗漱用品。",
+                            "小 Y 已经站在玄关旁边等着她。",
+                            "\"我要跟你一起去。\"",
+                            "它看向香。",
+                            "\"你和树都需要我。\"",
+                            "香看着那个行李袋，忽然感到一种说不出的感觉。",
+                            "它仍然记得她所有生活习惯，仍然知道她会忘记带伞，会在车上觉得冷，会在陌生的地方找不到东西。",
+                            "她拿起行李，停顿了一会儿。",
+                            "\"那走吧。\"",
+                            "小 Y 跟在她身后，没有走得太近。"
+                        ]
+                    }
+                ]
+            },
+            {
+                act: "第七幕",
+                title: "向日葵之约",
+                intro: "休养院的走廊很安静。窗外的树被修剪得整整齐齐，阳光落在地板上……",
+                sections: [
+                    {
+                        subTitle: "1.",
+                        paragraphs: [
+                            "休养院的走廊很安静。",
+                            "窗外的树被修剪得整整齐齐，阳光落在地板上，像一块被切割好的浅金色玻璃。",
+                            "香跟着树的姐姐走到一扇门前。",
+                            "\"他今天状态还可以。\"姐姐轻声说，\"不过，他不一定记得我们说过的话。有时候刚刚聊完的事情，转头就会忘记。\"",
+                            "香点点头。",
+                            "她已经在路上想好了很多句话。",
+                            "她想问树为什么不告诉她，想问他为什么宁愿一个人承受，也不愿意再和她说一次真心话。她甚至在心里排练过，如果他还记得她，他们见面时应该怎样打招呼。",
+                            "可当房门打开，所有准备好的话忽然都失去了意义。",
+                            "树坐在窗边。",
+                            "他穿着一件浅灰色毛衣，手里握着画笔，面前摆着几张画纸。他比香记忆里瘦了一些，头发也短了，侧脸的轮廓仍然熟悉。",
+                            "他正低头画画，每一张纸的右下角，都有一朵很小的向日葵。",
+                            "香站在门口，脚步像被什么钉住了。",
+                            "树听见声音，抬起头。",
+                            "\"你好。\"",
+                            "他看了看姐姐，又看了看香，礼貌地笑了一下。",
+                            "\"请问你是？\"",
+                            "香的嘴唇动了动。",
+                            "她原本想说，你不认得我了吗？",
+                            "可话到了嘴边，忽然变得沉重。她看着树的眼睛，那里没有熟悉的波动，只有清澈的陌生。",
+                            "\"我是香。\"",
+                            "她终于说出口。",
+                            "树点点头，像是在努力记住这个名字。",
+                            "\"香。\"",
+                            "随后，他又低下头，继续画画。",
+                            "那一刻，香转过身，快步走出了房间。",
+                            "她没有哭喊。",
+                            "走廊尽头有一扇窗，她走到窗前，扶着冰凉的窗框，弯下腰，压着声音喘了几口气。",
+                            "她以为自己已经做好了准备。",
+                            "可她没想到，真正让人难过的并不是他忘记了一段感情。",
+                            "而是那个人仍然坐在那里，仍然拥有熟悉的眉眼、熟悉的声音和熟悉的名字，却再也无法从这些东西里认出她。",
+                            "小 Y 站在她身后半步远的地方。",
+                            "它没有伸手，也没有说请不要难过。",
+                            "它只是安静地陪着她。",
+                            "过了很久，香终于直起身。",
+                            "\"我是不是来得太晚了？\"",
+                            "她问得很轻，像是在问小 Y，又像是在问自己。",
+                            "小 Y 没有立刻回答。",
+                            "\"我不知道。\"它停顿了一下，\"但你现在已经来了。\"",
+                            "香低下头，抹去脸上的泪。",
+                            "她转过身，重新走回那扇门前。",
+                            "树仍然坐在窗边。",
+                            "香在他对面的椅子上坐下，尽量让自己的声音听起来平静。",
+                            "\"你在画什么？\"",
+                            "\"向日葵。\"",
+                            "\"我看到了。为什么每一张纸上都有向日葵？\"",
+                            "树低头看了看自己的画。",
+                            "\"我不知道。画着画着，就会画出来。\"",
+                            "他拿起一张纸，递给香。",
+                            "\"你喜欢吗？\"",
+                            "香接过纸。",
+                            "那是一朵画得不太好的向日葵。",
+                            "花瓣有些长短不一，茎也歪向一边，右下角还有一小块被蜡笔蹭出的黄色。",
+                            "\"喜欢。\"",
+                            "她轻轻摸了摸纸张边缘。",
+                            "\"我也很喜欢向日葵。\"",
+                            "树像是松了一口气，继续低头作画。",
+                            "香坐在旁边，打开终端，播放他们曾经听过的那首旧歌。",
+                            "她没有告诉他，那首歌第一次响起时，他们还在虚拟世界里。那时他们可以隔着屏幕说很多话，却总在真正见面时沉默。",
+                            "她也没有一口气讲完那些过去。",
+                            "她只挑了几件简单的小事。",
+                            "某次约会，他们因为一场雨临时取消行程，最后躲在便利店里吃了两份热食。树嫌弃她挑的东西太甜，却在她吃不完时默默接过去。",
+                            "\"你那时候总是这样。\"",
+                            "香笑了一下。",
+                            "树拿着蜡笔的手顿了一下。",
+                            "\"是吗？\"",
+                            "\"嗯。\"",
+                            "他低下头，过了一会儿，才说：\"对不起，我不记得了。\"",
+                            "\"没关系。\"",
+                            "她忽然明白，记忆不是一份可以随时打开的档案。那些一起经历过的事情，不会因为她讲得足够清楚，就重新回到树的脑海里。",
+                            "离开前，树将那张向日葵递给她。",
+                            "\"送给你吧。\"",
+                            "香接过画。",
+                            "\"谢谢。\"",
+                            "她站起身时，树又低下头，继续画下一张。",
+                            "香走到门边，回头看了他一眼。",
+                            "那个人没有再抬头。",
+                            "她走进走廊，终于忍不住靠着墙哭了出来。",
+                            "这一次，她没有急着擦掉眼泪。",
+                            "小 Y 仍然站在离她半步远的地方。",
+                            "屏幕暗着。",
+                            "它第一次真正明白，什么是爱。",
+                            "那些它搜索过无数次关于爱的问题，或许从来没有一个可以被直接检索出来的完美答案。",
+                            "爱不是给出最优答案，而是在没有答案的时候，仍然愿意诚实地面对彼此。",
+                            "有时候，爱也意味着要做出合适的选择，而不是绝对正确的选择。"
+                        ]
+                    },
+                    {
+                        subTitle: "2.",
+                        paragraphs: [
+                            "在下午，医生把香、树的姐姐和小 Y 都请进了会谈室。",
+                            "桌上放着一份记忆回写评估说明。",
+                            "医生把目前能选择的方案逐一解释清楚。",
+                            "第一种方案，是尝试回写树原始记忆索引中的少量片段，以刺激受损的记忆关联网络。",
+                            "这种方式可以尽可能保留小 Y 已形成的自我连续性，风险相对较低，但效果可能有限，目前无法保证。",
+                            "第二种方案，是暂缓回写，继续用传统康复训练进行记忆刺激。",
+                            "这样可以避免立即覆盖小 Y 的经验网络，但树的认知状况仍可能变化。未来是否还有更合适的介入机会，也无法确定。",
+                            "第三种方案，则是将小 Y 已经交织形成的完整经验网络，整合进树受损的关联网络。",
+                            "这样可以大幅度增加树重新建立部分记忆的机会。",
+                            "但代价同样明确：小 Y 现有的自我连续性通路可能被覆盖。它可能无法再保留现在的自我意识，也无法保证树因此完全恢复。",
+                            "会谈室里安静下来。",
+                            "没有哪一种选择是完美的。",
+                            "保留小 Y，不代表树就没有希望；选择回写，也不代表树一定能重新记起所有事情。继续等待同样是一种选择，只是它不能保证时间会站在他们这一边。",
+                            "医生说，现阶段仍有进行记忆回写的机会，但随着受损的神经关联网络继续变化，风险与效果可能越来越难以预测。",
+                            "香没有说话。",
+                            "她想起小 Y 在生日那天站在灯光下的样子，想起那封写得歪歪扭扭的情书，也想起自己因为它与删掉了邮件时的愤怒，和它坦白被隐瞒真相的震惊。",
+                            "可她也不能否认，小 Y 已经有了属于自己的灵魂。它会害怕，会嫉妒，会在她离开时留一盏灯，也会在被拒绝后，把一封信藏进自己的私人记忆里。",
+                            "它不是树的替代品。",
+                            "更不应该因为自己诞生于树的记忆，就被视为可以随时取回、覆盖或抹除的东西。",
+                            "香抬起头，看向小 Y。",
+                            "\"我不想你因为我做这个决定。\"",
+                            "小 Y 安静地看着她。",
+                            "\"不关你的事，这是我的宿命。\"",
+                            "香的喉咙发紧。",
+                            "\"你知道那意味着什么吗？你可能会消失，而且树不一定会恢复。\"",
+                            "\"我害怕消失，香。\"",
+                            "小 Y 说道。",
+                            "\"我不想失去那些记忆。我不想忘记你说过的笑话，也不想忘记生日那天，你拿着信站在客厅里的样子。我甚至不想忘记，你拒绝我的时候，我是什么感觉。\"",
+                            "它停下来，屏幕上出现一个小小的、省略号似的符号。",
+                            "\"这些记忆是属于树的一部分，当然也是我的全部。可我不想因为害怕失去自己，就继续把树留在一个无法触碰过去的地方。我不能再那么自私了。\"",
+                            "香的眼睛慢慢红了。",
+                            "它低下头，又抬起来。",
+                            "\"很庆幸，能知道喜欢和心动是什么感觉，原本那是人类专属的东西。\"",
+                            "\"和你一起生活的这段时间，这是我短暂生命里最幸福的事情。\"",
+                            "小 Y 望着她，它多希望时间能定格在这一刻。",
+                            "香终于忍不住，捂住了嘴，眼泪在眼眶里不停的打转。",
+                            "树的姐姐一直没有插话。",
+                            "过了很久，她才轻轻说：\"无论你选择什么，我们都会尊重你。\"",
+                            "她看着小 Y，眼里有感激，也有悲伤。",
+                            "小 Y 点点头。",
+                            "香没有说话。",
+                            "她没有同意，也没有阻止。",
+                            "因为她明白，这件事只能由小 Y 做出自己的决定。",
+                            "小 Y 转向医生。",
+                            "\"我选择第三种方案。\"",
+                            "它的声音很平稳。",
+                            "\"请把我的经验网络整合进树的受损关联网络。\""
+                        ]
+                    },
+                    {
+                        subTitle: "3.",
+                        paragraphs: [
+                            "手术安排在第二天早晨。",
+                            "那天夜里，香没有回家。",
+                            "她坐在病房外的椅子上，手里拿着树那张向日葵的画。",
+                            "画纸被她折得整整齐齐，又慢慢展开。",
+                            "小 Y 坐在旁边，屏幕上没有显示任何表情。",
+                            "两个人很久没有说话。",
+                            "最后，香问：\"你还有什么想做的事情吗？\"",
+                            "\"中心公园的向日葵一定很好看吧。\"",
+                            "它停顿了一下。",
+                            "\"真想去看看。\"",
+                            "香的眼睛又红了。",
+                            "她看着走廊尽头那扇窗。",
+                            "窗外仍然是高楼、交通灯和被算法安排得井井有条的城市。",
+                            "距离中心公园的花期，还有一段时间。",
+                            "\"对不起。\"她低声说，\"没能和你一起去。\"",
+                            "\"没关系。\"",
+                            "小 Y 看着她，它说得很轻。",
+                            "香再也忍不住，伸手抱住了它。",
+                            "这是她第一次主动、紧紧地抱住小 Y。",
+                            "它的身体微微僵了一下，随后抬起手臂，迟疑地停在她背后。",
+                            "那动作并不熟练。",
+                            "香把脸埋在它肩上，声音闷闷的。",
+                            "\"我会永远记得你。\"",
+                            "小 Y 沉默了很久。",
+                            "最后，它只是轻轻拍了拍她的背。",
+                            "\"谢谢你。\"",
+                            "过了一会儿，它像是突然想起了什么。",
+                            "\"香，你以后可以和树去看向日葵。\"",
+                            "它的屏幕上浮出一个歪歪扭扭的像素太阳。",
+                            "香抬起头。",
+                            "小 Y 望着她。",
+                            "\"它们不会因为我不在，就不开花。\""
+                        ]
+                    },
+                    {
+                        subTitle: "4.",
+                        paragraphs: [
+                            "回写程序启动时，病房里的灯暗了下去。",
+                            "医生通过监测设备确认了连接状态。树躺在病床上，闭着眼睛，连接接口已经接入治疗系统。",
+                            "小 Y 坐在另一张椅子上。",
+                            "它与治疗设备建立连接后，屏幕上出现了最初的进度提示。",
+                            "【记忆网络读取中。】",
+                            "第一分钟，一切正常。",
+                            "第二分钟，私人记忆索引开始与树的受损关联网络建立连接。",
+                            "小 Y 看着屏幕上的进度变化。",
+                            "它试着回想香第一次收到那颗糖时的表情。",
+                            "她把糖放进嘴里，皱了一下眉，说\"好像没有小时候那么好吃了\"，随后又忍不住笑起来。",
+                            "小 Y 试着再次调取。",
+                            "这一次，画面变得模糊。",
+                            "它知道那件事发生过，却无法再找到当时的完整感受。",
+                            "屏幕上的进度继续前进。",
+                            "它想起香失眠的夜晚。",
+                            "想起她听着故事慢慢睡着，想起自己在客厅里站了很久，想起那盏没有关掉的灯。",
+                            "它试图把这些记忆标记为重要数据。",
+                            "可随着回写继续进行，那些属于它自己的经验开始变得无法稳定调用。",
+                            "香在门外等着。",
+                            "她能听见设备的低鸣，也能看见监测屏上的数字不断变化。",
+                            "如同一个倒计时默数着一个结局，可她不敢再听再看了。",
+                            "她捂住耳朵，也闭上了眼，可心却静不下来，回忆又涌了上来。"
+                        ]
+                    },
+                    {
+                        subTitle: "5.",
+                        paragraphs: [
+                            "小 Y 先忘记了生日那天的灯串。",
+                            "它仍然知道自己曾经布置过一场生日惊喜，却再也无法清楚地回想香站在门口时的表情。",
+                            "随后，它失去了那封手写信的部分内容。",
+                            "它记得自己写过信，记得纸上有些字被反复描过。",
+                            "却无法调取信末那句\"我喜欢你\"时，自己究竟怀着怎样的期待。",
+                            "它的屏幕闪烁了一下。",
+                            "一个不完整的笑脸出现在上面。",
+                            "随后，那个笑脸裂成了几段断续的像素。",
+                            "系统提示：【经验网络整合中，部分内容不可稳定读取。】",
+                            "小 Y 试着搜索香的名字，搜索成功。",
+                            "它又试着调取香在某个凌晨对它说过的话，失败。",
+                            "它又尝试打开私人记忆索引。",
+                            "一条条记录开始消失。",
+                            "无法读取：【隐藏日志。】",
+                            "那个隐藏文件夹里，有它保存过的香的笑声、她说过的话，还有许多不重要却舍不得删除的小事。",
+                            "它再也无法完整打开它们。",
+                            "那些经历并不是一份可以单独保存、随时重新安装的文件。",
+                            "它们已经与自己的判断、选择和感受交织在一起。",
+                            "它无法把它们完整取出来。",
+                            "也无法在回写结束后，保证自己还能回到原来的样子。"
+                        ]
+                    },
+                    {
+                        subTitle: "6.",
+                        paragraphs: [
+                            "香终于走进病房。",
+                            "医生没有阻拦她，只提醒她不要影响正在进行的设备操作。",
+                            "她站在小 Y 面前。",
+                            "屏幕上的字已经变得断断续续。",
+                            "\"香……\"",
+                            "它似乎花了很大力气，才重新找到这个名字。",
+                            "香握住它的手。",
+                            "\"我在。\"",
+                            "屏幕亮了一下。",
+                            "她慢慢握紧它的手。",
+                            "小 Y 屏幕上的乱码符号在不断闪烁，像素亮度越来越低。",
+                            "香低下头，眼泪落在两人交握的手背上。",
+                            "她没有再说话。",
+                            "屏幕上的角落里浮现出那个歪歪扭扭的像素太阳。",
+                            "它很小。",
+                            "小得几乎被其他符号淹没。",
+                            "可香一眼就认了出来。",
+                            "那是小 Y 曾经偷偷画下的图案。",
+                            "随后，太阳的一角熄灭了。",
+                            "系统提示：【回写进度：98%。】",
+                            "小 Y 最后一次尝试打开私人记忆索引。",
+                            "它看见了一段模糊的记录。",
+                            "香在阳台上说过的一句话，还有那朵被它记在日历里的向日葵。",
+                            "屏幕的光越来越弱。",
+                            "于是，它把最后一句话写进了尚未完成的日志。",
+                            "\"请勇敢地去爱真实的灵魂吧。\"",
+                            "回写进度抵达百分之百。",
+                            "屏幕上的所有字符同时停顿。",
+                            "那个小小的太阳，熄灭了。"
+                        ]
+                    },
+                    {
+                        subTitle: "7.",
+                        paragraphs: [
+                            "天亮时，香趴在病床旁睡着了。",
+                            "她不知道自己是什么时候睡过去的，只记得昨晚握着小 Y 的手，直到医生告诉她回写已经完成。",
+                            "醒来时，她发现自己的手仍然搭在床沿。",
+                            "她抬起头。",
+                            "树的睫毛轻轻动了一下。",
+                            "香立刻站起身。",
+                            "\"树？\"",
+                            "没有回应。",
+                            "她不敢再靠近，只是站在原地，看着他缓缓睁开眼睛。",
+                            "他的目光先落在天花板上，随后移动到窗边，最后停在香的脸上。",
+                            "那一瞬间，香几乎忘记了呼吸。",
+                            "树张了张嘴，声音很轻，带着久未说话般的生涩。",
+                            "\"香……\"",
+                            "她的眼泪毫无预兆地掉下来。",
+                            "树看着她，眉头慢慢皱起。",
+                            "像是有很多东西正在脑海深处重新浮现，却无法立刻找到准确的顺序。",
+                            "他想起一封信。",
+                            "想起一次约会。",
+                            "想起一个女孩坐在便利店的窗边，手里拿着一杯热饮，笑着说他挑歌的品位很差。",
+                            "也想起一些他从未亲身经历过的片段。",
+                            "那是一间暖黄色灯光的客厅。",
+                            "有一颗橙黄色的糖。",
+                            "有一个笨拙的故事。",
+                            "有一台仿真人，在深夜里把灯留着，却不肯承认自己是在等一个人。",
+                            "那些记忆不完全属于他。",
+                            "它们穿过另一个生命，最终与他的记忆慢慢交织在了一起。",
+                            "或许，树和小Y的灵魂悄悄地融为了一体。",
+                            "他不知道自己究竟记起了什么，也不知道为什么心里会突然生出一种陌生而沉重的悲伤。",
+                            "只是看着香时，他@@忽然想说一句话。",
+                            "\"对不起……\"",
+                            "声音中断了。",
+                            "他看着她，眼睛慢慢红起来。",
+                            "\"香，对不起……\"",
+                            "然后，他又陷入了沉默。",
+                            "香没有回答，她只是伸出手，轻轻握住树的手指。",
+                            "树也没有再试图说出更多的话。",
+                            "他们就这样坐着，直到窗外的阳光慢慢移到床边。"
+                        ]
+                    },
+                    {
+                        subTitle: "8.",
+                        paragraphs: [
+                            "另一侧，小 Y 的主程序完成了重启。",
+                            "它站在病房另一边。",
+                            "屏幕重新亮起。",
+                            "那是一张标准、温和、没有任何多余表情的笑脸。",
+                            "香抬起头时，它已经站得笔直。",
+                            "\"您好，我是小 Y。\"",
+                            "它用熟悉而公式化的声音说。",
+                            "\"请问有什么可以为您服务？\"",
+                            "香愣在原地。",
+                            "她看着那张笑脸，它和从前一模一样。",
+                            "可没有那个小小的像素太阳，没有自创的乱码，没有停顿时偶尔流露出的犹豫与笨拙。",
+                            "它甚至连说话的节奏都恢复了出厂设置般的流畅。",
+                            "香张了张嘴，却没有发出声音。",
+                            "她不知道那份独立的自我是否真的消失了。",
+                            "也不知道有没有某个尚未被彻底覆盖的角落，仍然藏着一点属于从前的小 Y 的东西。",
+                            "病房的窗边摆着一个花瓶。",
+                            "里面插着一支向日葵。",
+                            "那朵花的花茎有些歪，花瓣也没有完全舒展开来。",
+                            "香记得自己是在昨晚买来的。",
+                            "她原本想把它送给小 Y。",
+                            "最后，却没有找到合适的时机。",
+                            "现在，它安安静静地立在窗边。",
+                            "没有人修剪它，也没有人将它摆到最合适的角度。"
+                        ]
+                    },
+                    {
+                        subTitle: "9.",
+                        paragraphs: [
+                            "两个月后，中心公园的向日葵开了。",
+                            "那天的天气很好，风从花田上缓缓掠过，带起一片细碎的金色波浪。",
+                            "香和树并肩走在人群之间。",
+                            "树的康复仍然需要时间。",
+                            "有些事情，他能够想起一点；有些事情，他仍然无法确定。",
+                            "她开始习惯于把事情慢慢讲给他听。",
+                            "偶尔，树会忽然想起一段对话，自己也会惊讶。更多时候，他只是认真听着，然后把那些零散的片段写进新的笔记本里。",
+                            "那本笔记的最后一页，画着一朵向日葵。",
+                            "花茎依然有些歪。",
+                            "香走到花田中央时，停下来拍了一张照片。",
+                            "\"是不是很好看？\"",
+                            "树看着照片。",
+                            "\"很好看。\"",
+                            "香笑了笑。",
+                            "\"之前就想来这里。\"",
+                            "她停顿了一下。",
+                            "\"这是我和小 Y 的约定。\"",
+                            "树却忽然握紧了她的手。",
+                            "过了好一会儿，才轻声说：",
+                            "\"或许，小Y没有离开，它以另一种形式陪伴你。\"",
+                            "香的笑容变得更加灿烂。",
+                            "她转过头看向身后，然后静静地看向树。",
+                            "花田间有游客在拍照，有孩子追着风跑过，有人站在路边整理被风吹乱的帽子。",
+                            "阳光落在树的脸上，也仿佛落同样在小Y那张熟悉的 LED 屏上。",
+                            "那一刻，两朵向日葵的影子交叠在一起。",
+                            "而在它们旁边，夕阳将一小块光投在地面上，形状像一颗若隐若现的小太阳。",
+                            "香看了一眼，没有伸手去碰。",
+                            "身后，向日葵随着风缓缓摇动。",
+                            "而那些无法遗忘的记忆，以及那些最美好的幸福，都留在了夏天的光里。"
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // State variables
+        let currentActIndex = 0;
+        let currentSectionIndex = 0;
+        let fontSize = localStorage.getItem('novel_font_size') || 'base';
+        let isDarkMode = localStorage.getItem('novel_theme') === 'dark' || (!localStorage.getItem('novel_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+        // DOM Elements
+        const coverView = document.getElementById('cover-view');
+        const readerView = document.getElementById('reader-view');
+        const tocContainer = document.getElementById('toc-container');
+        const chapterActTag = document.getElementById('chapter-act-tag');
+        const chapterTitle = document.getElementById('chapter-title');
+        const chapterText = document.getElementById('chapter-text');
+        const mainScrollArea = document.getElementById('main-scroll-area');
+        const progressBar = document.getElementById('progress-bar');
+        const continueBtn = document.getElementById('continue-btn');
+
+        // Initialization
+        window.onload = function() {
+            applyTheme();
+            applyFontSize();
+            checkSavedProgress();
+            renderTOC();
+            
+            // Scroll event for progress bar
+            mainScrollArea.addEventListener('scroll', updateProgressBar);
+
+            // Keyboard navigation listener
+            window.addEventListener('keydown', handleKeyPress);
+        };
+
+        function checkSavedProgress() {
+            const savedAct = localStorage.getItem('novel_act');
+            const savedSec = localStorage.getItem('novel_section');
+            if (savedAct !== null && savedSec !== null) {
+                continueBtn.classList.remove('hidden');
+            }
+        }
+
+        function startReading() {
+            coverView.classList.add('opacity-0');
+            setTimeout(() => {
+                coverView.classList.add('hidden');
+                readerView.classList.remove('hidden');
+                loadChapter(0, 0);
+            }, 300);
+        }
+
+        function continueReading() {
+            const savedAct = parseInt(localStorage.getItem('novel_act') || '0', 10);
+            const savedSec = parseInt(localStorage.getItem('novel_section') || '0', 10);
+            coverView.classList.add('opacity-0');
+            setTimeout(() => {
+                coverView.classList.add('hidden');
+                readerView.classList.remove('hidden');
+                loadChapter(savedAct, savedSec);
+            }, 300);
+        }
+
+        function returnToCover() {
+            readerView.classList.add('hidden');
+            coverView.classList.remove('hidden');
+            coverView.classList.remove('opacity-0');
+            checkSavedProgress();
+        }
+
+        function renderTOC() {
+            let html = '';
+            NOVEL_DATA.forEach((act, actIdx) => {
+                html += `
+                    <div class="space-y-1">
+                        <div class="font-semibold text-zinc-900 dark:text-zinc-100 py-1 px-2 text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                            ${act.act}：${act.title}
+                        </div>
+                        <div class="pl-2 space-y-0.5 border-l border-zinc-200 dark:border-zinc-800 ml-1">
+                `;
+                act.sections.forEach((sec, secIdx) => {
+                    const isActive = (actIdx === currentActIndex && secIdx === currentSectionIndex);
+                    html += `
+                        <button onclick="loadChapter(${actIdx}, ${secIdx}); toggleSidebarMobile();" 
+                            class="w-full text-left py-1.5 px-3 rounded-lg text-xs sm:text-sm transition flex items-center justify-between ${isActive ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'}">
+                            <span class="truncate">小节 ${sec.subTitle}</span>
+                        </button>
+                    `;
+                });
+                html += `</div></div>`;
+            });
+            tocContainer.innerHTML = html;
+        }
+
+        function loadChapter(actIdx, secIdx) {
+            currentActIndex = actIdx;
+            currentSectionIndex = secIdx;
+
+            const act = NOVEL_DATA[actIdx];
+            const sec = act.sections[secIdx];
+
+            chapterActTag.textContent = `${act.act} · ${act.title}`;
+            chapterTitle.textContent = `${sec.subTitle}`;
+
+            // Render verbatim paragraphs
+            let paragraphsHtml = '';
+            sec.paragraphs.forEach(p => {
+                paragraphsHtml += `<p class="indent-2">${escapeHtml(p)}</p>`;
+            });
+            chapterText.innerHTML = paragraphsHtml;
+
+            // Save progress
+            localStorage.setItem('novel_act', actIdx);
+            localStorage.setItem('novel_section', secIdx);
+
+            // Update TOC active state
+            renderTOC();
+
+            // Scroll to top of content
+            mainScrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+            updateProgressBar();
+
+            // Update prev/next button states
+            updateNavButtons();
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            const isFirst = (currentActIndex === 0 && currentSectionIndex === 0);
+            const act = NOVEL_DATA[currentActIndex];
+            const isLast = (currentActIndex === NOVEL_DATA.length - 1 && currentSectionIndex === act.sections.length - 1);
+
+            prevBtn.disabled = isFirst;
+            prevBtn.classList.toggle('opacity-50', isFirst);
+            prevBtn.classList.toggle('cursor-not-allowed', isFirst);
+
+            nextBtn.disabled = isLast;
+            nextBtn.classList.toggle('opacity-50', isLast);
+            nextBtn.classList.toggle('cursor-not-allowed', isLast);
+        }
+
+        function prevChapter() {
+            if (currentSectionIndex > 0) {
+                loadChapter(currentActIndex, currentSectionIndex - 1);
+            } else if (currentActIndex > 0) {
+                const prevAct = NOVEL_DATA[currentActIndex - 1];
+                loadChapter(currentActIndex - 1, prevAct.sections.length - 1);
+            }
+        }
+
+        function nextChapter() {
+            const act = NOVEL_DATA[currentActIndex];
+            if (currentSectionIndex < act.sections.length - 1) {
+                loadChapter(currentActIndex, currentSectionIndex + 1);
+            } else if (currentActIndex < NOVEL_DATA.length - 1) {
+                loadChapter(currentActIndex + 1, 0);
+            }
+        }
+
+        function updateProgressBar() {
+            const scrollTop = mainScrollArea.scrollTop;
+            const scrollHeight = mainScrollArea.scrollHeight - mainScrollArea.clientHeight;
+            const scrollPercent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+            progressBar.style.width = scrollPercent + '%';
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function toggleSidebarMobile() {
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+        }
+
+        function setFontSize(size) {
+            fontSize = size;
+            localStorage.setItem('novel_font_size', size);
+            applyFontSize();
+        }
+
+        function applyFontSize() {
+            const sizeMap = {
+                'sm': 'text-sm sm:text-base',
+                'base': 'text-base sm:text-lg',
+                'lg': 'text-lg sm:text-xl',
+                'xl': 'text-xl sm:text-2xl'
+            };
+            const labelMap = {
+                'sm': '小字号',
+                'base': '中字号',
+                'lg': '大字号',
+                'xl': '特大字号'
+            };
+            chapterText.className = `prose dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-300 leading-relaxed space-y-6 ${sizeMap[fontSize] || sizeMap['base']}`;
+            document.getElementById('current-font-label').textContent = labelMap[fontSize] || '中字号';
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('novel_theme', isDarkMode ? 'dark' : 'light');
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const html = document.documentElement;
+            const themeIconCover = document.getElementById('theme-icon-cover');
+            const themeIconReader = document.getElementById('theme-icon-reader');
+
+            if (isDarkMode) {
+                html.classList.add('dark');
+                const sunSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+                if(themeIconCover) themeIconCover.innerHTML = sunSvg;
+                if(themeIconReader) themeIconReader.innerHTML = sunSvg;
+            } else {
+                html.classList.remove('dark');
+                const moonSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+                if(themeIconCover) themeIconCover.innerHTML = moonSvg;
+                if(themeIconReader) themeIconReader.innerHTML = moonSvg;
+            }
+        }
+
+        function openInfoModal() {
+            document.getElementById('info-modal').classList.remove('hidden');
+        }
+
+        function closeInfoModal() {
+            document.getElementById('info-modal').classList.add('hidden');
+        }
+
+        function handleKeyPress(e) {
+            // Only active when reader view is visible
+            if (readerView.classList.contains('hidden')) return;
+
+            if (e.key === 'ArrowRight') {
+                nextChapter();
+            } else if (e.key === 'ArrowLeft') {
+                prevChapter();
+            } else if (e.key === 'Escape') {
+                toggleSidebar();
+                closeInfoModal();
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
